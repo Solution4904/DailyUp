@@ -8,12 +8,14 @@ import app.solution.dailyup.model.ScheduleModel
 
 class ScheduleAdapter(
     private val scheduleModels: List<ScheduleModel>,
-    private val onIconClick: (ScheduleModel) -> Unit
+    private val onIconClick: () -> Unit,
+    private val onItemClick: (ScheduleModel) -> Unit
 ) : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>() {
     inner class ScheduleViewHolder(private val binding: ScheduleViewBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(schedule: ScheduleModel) {
             binding.schedule = schedule
-            binding.btnIcon.setOnClickListener { onIconClick(schedule) }
+            binding.btnIcon.setOnClickListener { onIconClick() }
+            binding.layoutRoot.setOnClickListener { onItemClick(schedule) }
             binding.executePendingBindings()
         }
     }
@@ -24,11 +26,6 @@ class ScheduleAdapter(
         return ScheduleViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
-        holder.bind(scheduleModels[position])
-    }
-
-    override fun getItemCount(): Int {
-        return scheduleModels.size
-    }
+    override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) = holder.bind(scheduleModels[position])
+    override fun getItemCount(): Int = scheduleModels.size
 }

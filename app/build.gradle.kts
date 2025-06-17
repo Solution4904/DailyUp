@@ -60,4 +60,7 @@ dependencies {
 
     //    MVVM
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0")
+
+    //  Gson
+    implementation("com.google.code.gson:gson:2.13.1")
 }

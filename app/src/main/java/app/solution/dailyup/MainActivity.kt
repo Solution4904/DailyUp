@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.solution.dailyup.adapter.ScheduleAdapter
 import app.solution.dailyup.databinding.ActivityMainBinding
 import app.solution.dailyup.model.ScheduleModel
-import app.solution.dailyup.viewmodel.ScheduleViewModel
+import app.solution.dailyup.utility.ConstKeys
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -35,9 +34,20 @@ class MainActivity : AppCompatActivity() {
             testList.add(ScheduleModel("$i", "title", "dec", 0))
         }
 
-        val adapter = ScheduleAdapter(testList) {
-            Log.d("TAG", "click")
-        }
+        val adapter = ScheduleAdapter(
+            testList,
+            onIconClick = {
+                Log.d("TAG", "icon click")
+            },
+            onItemClick = { schedule ->
+                Log.d("TAG", "clicked data : \n${schedule}")
+
+                startActivity(
+                    Intent(this@MainActivity, AddScheduleActivity::class.java).apply {
+                        putExtra(ConstKeys.INTENT_EXTRA, "${ConstKeys.SCHEDULE_LIST}_${schedule.id}")
+                    }
+                )
+            })
 
         binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this)
         binding.layoutRecyclerview.adapter = adapter
