@@ -2,7 +2,7 @@ package app.solution.dailyup.model
 
 data class ScheduleModel(
     val id: String,
-    val title: String,
-    val dec: String,
-    val iconResId: Int,
+    var title: String,
+    var dec: String,
+    var iconResId: String,
 )

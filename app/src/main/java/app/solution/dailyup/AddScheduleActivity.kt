@@ -1,5 +1,6 @@
 package app.solution.dailyup
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -9,10 +10,11 @@ import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
 import java.util.UUID
+import kotlin.apply
 
 class AddScheduleActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddscheduleBinding
-    private var schedule: ScheduleModel? = null
+    private lateinit var scheduleModel: ScheduleModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,28 +34,35 @@ class AddScheduleActivity : AppCompatActivity() {
     }
 
     private fun setLoad() {
-        intent.getStringExtra(ConstKeys.INTENT_EXTRA)?.let {
-            MyAppication.localDataManager.getData(ConstKeys.SCHEDULE_LIST)?.let {
-                schedule = MyAppication.localDataManager.deserialization(it, ScheduleModel::class.java)
+        if (intent.hasExtra(ConstKeys.SCHEDULE_ID)
+            || intent.hasExtra(ConstKeys.SCHEDULE_TITLE)
+            || intent.hasExtra(ConstKeys.SCHEDULE_DEC)
+            || intent.hasExtra(ConstKeys.SCHEDULE_ICON)
+        ) {
+            scheduleModel = ScheduleModel(
+                id = intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
+                title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
+                dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
+                iconResId = intent.getStringExtra(ConstKeys.SCHEDULE_ICON).toString()
+            )
 
-                binding.etTitle.setText(schedule?.title)
-                binding.etDec.setText(schedule?.dec)
-            }
+            binding.etTitle.setText(scheduleModel.title)
+            binding.etDec.setText(scheduleModel.dec)
         }
     }
 
     private fun setButtonsEvent() {
         binding.btnConfirm.setOnClickListener {
-            val schedule = schedule ?: ScheduleModel(
-                id = UUID.randomUUID().toString(),
-                title = binding.etTitle.text.toString(),
-                dec = binding.etDec.text.toString(),
-                iconResId = 0
-            )
+            scheduleModel.title = binding.etTitle.text.toString()
+            scheduleModel.dec = binding.etDec.text.toString()
 
-            val data = MyAppication.localDataManager.serialization(schedule)
-            MyAppication.localDataManager.setData("${ConstKeys.SCHEDULE_LIST}_${schedule.id}", data)
-
+            val resultIntent = Intent().apply {
+                putExtra(ConstKeys.SCHEDULE_ID, scheduleModel.id)
+                putExtra(ConstKeys.SCHEDULE_TITLE, scheduleModel.title)
+                putExtra(ConstKeys.SCHEDULE_DEC, scheduleModel.dec)
+                putExtra(ConstKeys.SCHEDULE_ICON, scheduleModel.iconResId)
+            }
+            setResult(RESULT_OK, resultIntent)
             finish()
         }
 

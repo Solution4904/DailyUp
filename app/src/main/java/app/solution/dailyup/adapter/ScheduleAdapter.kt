@@ -7,7 +7,7 @@ import app.solution.dailyup.databinding.ScheduleViewBinding
 import app.solution.dailyup.model.ScheduleModel
 
 class ScheduleAdapter(
-    private val scheduleModels: List<ScheduleModel>,
+    private val scheduleModels: MutableList<ScheduleModel>,
     private val onIconClick: () -> Unit,
     private val onItemClick: (ScheduleModel) -> Unit
 ) : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>() {
