@@ -2,6 +2,7 @@ package app.solution.dailyup
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -29,32 +30,38 @@ class AddScheduleActivity : AppCompatActivity() {
             insets
         }
 
-        setLoad()
+        initData()
+        initField()
+
         setButtonsEvent()
     }
 
-    private fun setLoad() {
-        if (intent.hasExtra(ConstKeys.SCHEDULE_ID)
-            || intent.hasExtra(ConstKeys.SCHEDULE_TITLE)
-            || intent.hasExtra(ConstKeys.SCHEDULE_DEC)
-            || intent.hasExtra(ConstKeys.SCHEDULE_ICON)
-        ) {
-            scheduleModel = ScheduleModel(
-                id = intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
-                title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
-                dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
-                iconResId = intent.getStringExtra(ConstKeys.SCHEDULE_ICON).toString()
-            )
+    private fun initData() {
+        val _id = if (intent.hasExtra(ConstKeys.SCHEDULE_ID)) intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString() else UUID.randomUUID().toString()
+        val _title = if (intent.hasExtra(ConstKeys.SCHEDULE_TITLE)) intent.getStringExtra(ConstKeys.SCHEDULE_TITLE) else ""
+        val _dec = if (intent.hasExtra(ConstKeys.SCHEDULE_DEC)) intent.getStringExtra(ConstKeys.SCHEDULE_DEC) else ""
+        val _icon = if (intent.hasExtra(ConstKeys.SCHEDULE_ICON)) intent.getStringExtra(ConstKeys.SCHEDULE_ICON) else ""
 
-            binding.etTitle.setText(scheduleModel.title)
-            binding.etDec.setText(scheduleModel.dec)
-        }
+        scheduleModel = ScheduleModel(
+            id = _id,
+            title = _title,
+            dec = _dec,
+            iconResId = _icon,
+        )
+    }
+
+    private fun initField() {
+        binding.etTitle.setText(scheduleModel.title)
+        binding.etDec.setText(scheduleModel.dec)
     }
 
     private fun setButtonsEvent() {
         binding.btnConfirm.setOnClickListener {
-            scheduleModel.title = binding.etTitle.text.toString()
-            scheduleModel.dec = binding.etDec.text.toString()
+            scheduleModel.apply {
+                title = binding.etTitle.text.toString()
+                dec = binding.etDec.text.toString()
+                iconResId = ""
+            }
 
             val resultIntent = Intent().apply {
                 putExtra(ConstKeys.SCHEDULE_ID, scheduleModel.id)

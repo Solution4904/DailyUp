@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -19,7 +21,9 @@ class MainActivity : AppCompatActivity() {
     //    Variable
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: ScheduleAdapter
+    private lateinit var intentLauncher: ActivityResultLauncher<Intent>
     private val scheduleList = mutableListOf<ScheduleModel>()
+
 
     //    LifeCycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +40,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         addButtonsEvent()
+        setIntentLauncher()
+
         loadScheduleList()
     }
 
@@ -47,8 +53,13 @@ class MainActivity : AppCompatActivity() {
 
     //    Function
     private fun addButtonsEvent() {
-        val intent = Intent(this@MainActivity, AddScheduleActivity::class.java)
-        var intentLauncher = registerForActivityResult(
+        binding.btnAdd.setOnClickListener {
+            intentLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java))
+        }
+    }
+
+    private fun setIntentLauncher() {
+        intentLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -60,14 +71,25 @@ class MainActivity : AppCompatActivity() {
                         iconResId = it.getStringExtra(ConstKeys.SCHEDULE_ICON).toString()
                     )
 
-                    scheduleList.add(scheduleModel)
+                    var data = scheduleList.find { it.id == scheduleModel.id }
+                    if (data == null) {
+                        scheduleList.add(scheduleModel)
+
+                        Log.d("TAG", "새로 추가")
+                    } else {
+                        scheduleList.find { it.id == scheduleModel.id }?.let {
+                            it.title = scheduleModel.title
+                            it.dec = scheduleModel.dec
+                            it.iconResId = scheduleModel.iconResId
+                        }
+
+                        Log.d("TAG", "수정 등록")
+                    }
+
                     MyAppication.localDataManager.setData(ConstKeys.SCHEDULE_LIST, MyAppication.localDataManager.serialization(scheduleList).toString())
                 }
             }
-
         }
-
-        binding.btnAdd.setOnClickListener { intentLauncher.launch(intent) }
     }
 
     private fun loadScheduleList() {
@@ -82,17 +104,13 @@ class MainActivity : AppCompatActivity() {
                 onIconClick = {
                     Log.d("TAG", "icon click")
                 },
-                onItemClick = { schedule ->
-                    Log.d("TAG", "clicked data : \n${schedule}")
-
-                    startActivity(
-                        Intent(this@MainActivity, AddScheduleActivity::class.java).apply {
-                            putExtra(ConstKeys.SCHEDULE_ID, schedule.id)
-                            putExtra(ConstKeys.SCHEDULE_TITLE, schedule.title)
-                            putExtra(ConstKeys.SCHEDULE_DEC, schedule.dec)
-                            putExtra(ConstKeys.SCHEDULE_ICON, schedule.iconResId)
-                        }
-                    )
+                onItemClick = { item ->
+                    intentLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java).apply {
+                        putExtra(ConstKeys.SCHEDULE_ID, item.id)
+                        putExtra(ConstKeys.SCHEDULE_TITLE, item.title)
+                        putExtra(ConstKeys.SCHEDULE_DEC, item.dec)
+                        putExtra(ConstKeys.SCHEDULE_ICON, item.iconResId)
+                    })
                 })
 
             binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this)
