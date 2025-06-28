@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="schedule_icon_name_array">
+        <item>ic_schedule_default</item>
+        <item>ic_schedule_bulb</item>
+        <item>ic_schedule_label</item>
+        <item>ic_schedule_food</item>
+        <item>ic_schedule_phone</item>
+        <item>ic_schedule_cafe</item>
+        <item>ic_schedule_store</item>
+        <item>ic_schedule_airport</item>
+        <item>ic_schedule_atm</item>
+        <item>ic_schedule_movies</item>
+        <item>ic_schedule_taxi</item>
+        <item>ic_schedule_medication</item>
+        <item>ic_schedule_power</item>
+        <item>ic_schedule_star</item>
+        <item>ic_schedule_wc</item>
+        <item>ic_schedule_work</item>
+    </string-array>
+</resources>

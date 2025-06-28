@@ -61,6 +61,11 @@ dependencies {
     //    MVVM
     implementation(libs.androidx.lifecycle.viewmodel.ktx.v291)
 
-    //  Gson
+    //    Gson
     implementation(libs.gson)
+
+    //    Glide
+    implementation (libs.glide)
+
+    implementation (libs.material.v1110)
 }

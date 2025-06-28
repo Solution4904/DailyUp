@@ -4,18 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
+import com.bumptech.glide.Glide
 import java.util.UUID
 import kotlin.apply
 
 class AddScheduleActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddscheduleBinding
     private lateinit var scheduleModel: ScheduleModel
+    private lateinit var intentLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +37,7 @@ class AddScheduleActivity : AppCompatActivity() {
         initData()
         initField()
 
+        setIntentLauncher()
         setButtonsEvent()
     }
 
@@ -56,23 +61,60 @@ class AddScheduleActivity : AppCompatActivity() {
     }
 
     private fun setButtonsEvent() {
-        binding.btnConfirm.setOnClickListener {
-            scheduleModel.apply {
-                title = binding.etTitle.text.toString()
-                dec = binding.etDec.text.toString()
-                iconResId = ""
-            }
+        binding.ibtnIcon.setOnClickListener { popupIconList() }
 
-            val resultIntent = Intent().apply {
-                putExtra(ConstKeys.SCHEDULE_ID, scheduleModel.id)
-                putExtra(ConstKeys.SCHEDULE_TITLE, scheduleModel.title)
-                putExtra(ConstKeys.SCHEDULE_DEC, scheduleModel.dec)
-                putExtra(ConstKeys.SCHEDULE_ICON, scheduleModel.iconResId)
+        binding.btnConfirm.setOnClickListener { save() }
+
+        binding.btnCancel.setOnClickListener { cancel() }
+    }
+
+    private fun setIntentLauncher() {
+        intentLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.let {
+                    val fileName = it.getStringExtra(ConstKeys.SCHEDULE_ICON)
+
+                    Glide.with(baseContext)
+                        .load(fileName)
+                        .into(binding.ibtnIcon)
+                }
             }
-            setResult(RESULT_OK, resultIntent)
-            finish()
+        }
+    }
+
+    private fun popupIconList() {
+        val fragment = ScheduleIconSelectorBottomSheet(
+            onItemClick = { resId ->
+                binding.ibtnIcon.apply {
+                    setImageResource(resId)
+                    tag = resId
+                }
+            }
+        )
+        fragment.show(supportFragmentManager, fragment.tag)
+    }
+
+    private fun save() {
+        scheduleModel.apply {
+            title = binding.etTitle.text.toString()
+            dec = binding.etDec.text.toString()
+            iconResId = binding.ibtnIcon.tag.toString()
         }
 
-        binding.btnCancel.setOnClickListener { finish() }
+        val resultIntent = Intent().apply {
+            putExtra(ConstKeys.SCHEDULE_ID, scheduleModel.id)
+            putExtra(ConstKeys.SCHEDULE_TITLE, scheduleModel.title)
+            putExtra(ConstKeys.SCHEDULE_DEC, scheduleModel.dec)
+            putExtra(ConstKeys.SCHEDULE_ICON, scheduleModel.iconResId)
+        }
+        setResult(RESULT_OK, resultIntent)
+
+        finish()
+    }
+
+    private fun cancel() {
+        finish()
     }
 }
