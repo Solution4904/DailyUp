@@ -17,19 +17,17 @@ import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.viewmodel.ScheduleViewModel
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlin.apply
 
 class AddScheduleActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddscheduleBinding
     private lateinit var viewModel: ScheduleViewModel
     private lateinit var intentLauncher: ActivityResultLauncher<Intent>
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel = ViewModelProvider(this)[ScheduleViewModel::class.java]
-
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_addschedule)
         binding.lifecycleOwner = this
         binding.viewModel = this.viewModel
@@ -51,17 +49,17 @@ class AddScheduleActivity : AppCompatActivity() {
         if (intent.hasExtra(ConstKeys.SCHEDULE_ID)) {
             with(intent)
             {
-                viewModel.setType(ScheduleTypeEnum.convert(getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()))
-                viewModel.setId(getStringExtra((ConstKeys.SCHEDULE_ID)).toString())
-                viewModel.setTitle(getStringExtra(ConstKeys.SCHEDULE_TITLE).toString())
-                viewModel.setDec(getStringExtra(ConstKeys.SCHEDULE_DEC).toString())
-                viewModel.setIconName(getIntExtra(ConstKeys.SCHEDULE_ICONNAME, viewModel.getIconName()))
-                viewModel.setMaxValue(getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, viewModel.getMaxValue()))
-                viewModel.setValueStep(getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, viewModel.getValueStep()))
-                viewModel.setValue(getIntExtra(ConstKeys.SCHEDULE_VALUE, viewModel.getValue()))
+                viewModel.type.value = (ScheduleTypeEnum.convert(getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()))
+                viewModel.id.value = (getStringExtra((ConstKeys.SCHEDULE_ID)).toString())
+                viewModel.title.value = (getStringExtra(ConstKeys.SCHEDULE_TITLE).toString())
+                viewModel.dec.value = (getStringExtra(ConstKeys.SCHEDULE_DEC).toString())
+                viewModel.iconResId.value = (getIntExtra(ConstKeys.SCHEDULE_ICONNAME, viewModel.iconResId.value ?: R.drawable.ic_schedule_default))
+                viewModel.maxValue.value = (getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, viewModel.maxValue.value ?: 1))
+                viewModel.valueStep.value= (getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, viewModel.valueStep.value ?: 1))
+                viewModel.value.value = (getIntExtra(ConstKeys.SCHEDULE_VALUE, viewModel.value.value ?: 0))
             }
 
-            Log.d("TAG", "initData: ${viewModel.scheduleModel.value}")
+            Log.d("TAG", "initData: ${viewModel.value}")
         }
     }
 
@@ -97,8 +95,8 @@ class AddScheduleActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this@AddScheduleActivity)
             .setTitle("완료 방식")
             .setItems(types) { dialog, which ->
-                viewModel.scheduleModel.value?.let {
-                    viewModel.setType(ScheduleTypeEnum.convert(which))
+                viewModel.value.let {
+                    viewModel.type.value = ScheduleTypeEnum.convert(which)
                 }
             }.show()
     }
@@ -117,27 +115,27 @@ class AddScheduleActivity : AppCompatActivity() {
 
     private fun save() {
         viewModel.apply {
-            setTitle(binding.etTitle.text.toString())
-            setDec(binding.etDec.text.toString())
+            title.value = (binding.etTitle.text.toString())
+            dec.value = (binding.etDec.text.toString())
 
-            if (viewModel.getType() == ScheduleTypeEnum.COUNTING) {
-                setMaxValue(binding.etMaxValue.text.toString().toInt())
-                setValueStep(binding.etValueStep.text.toString().toInt())
+            if (viewModel.type.value == ScheduleTypeEnum.COUNTING) {
+                maxValue.value = (binding.etMaxValue.text.toString().toInt())
+                valueStep.value = (binding.etValueStep.text.toString().toInt())
             } else {
-                setIconName(binding.ibtnIcon.tag as Int)
+                iconResId.value = (binding.ibtnIcon.tag as Int)
             }
         }
 
         val resultIntent = Intent().apply {
             with(viewModel) {
-                putExtra(ConstKeys.SCHEDULE_ID, getId())
-                putExtra(ConstKeys.SCHEDULE_TITLE, getTitle())
-                putExtra(ConstKeys.SCHEDULE_DEC, getDec())
-                putExtra(ConstKeys.SCHEDULE_ICONNAME, getIconName())
-                putExtra(ConstKeys.SCHEDULE_TYPE, getType().name)
-                putExtra(ConstKeys.SCHEDULE_MAXVALUE, getMaxValue())
-                putExtra(ConstKeys.SCHEDULE_VALUESTEP, getValueStep())
-                putExtra(ConstKeys.SCHEDULE_VALUE, getValue())
+                putExtra(ConstKeys.SCHEDULE_ID, id.value)
+                putExtra(ConstKeys.SCHEDULE_TITLE, title.value)
+                putExtra(ConstKeys.SCHEDULE_DEC, dec.value)
+                putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId.value ?: R.drawable.ic_schedule_default)
+                putExtra(ConstKeys.SCHEDULE_TYPE, type.value?.name ?: ScheduleTypeEnum.NORMAL)
+                putExtra(ConstKeys.SCHEDULE_MAXVALUE, maxValue.value ?: 1)
+                putExtra(ConstKeys.SCHEDULE_VALUESTEP, valueStep.value ?: 1)
+                putExtra(ConstKeys.SCHEDULE_VALUE, value.value ?: 0)
             }
         }
         setResult(RESULT_OK, resultIntent)
