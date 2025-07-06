@@ -18,4 +18,9 @@
         <item>ic_schedule_wc</item>
         <item>ic_schedule_work</item>
     </string-array>
+
+    <string-array name="schedule_type_array">
+        <item>체크 방식</item>
+        <item>할당 방식</item>
+    </string-array>
 </resources>

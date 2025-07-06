@@ -15,7 +15,7 @@ class LocalDataManager(context: Context) {
      *  2. 전달받은 데이터를 Json으로 String 변환
      * @param schedule
      */
-    fun serialization(schedule: MutableList<ScheduleModel>): String? = Gson().toJson(schedule)
+    fun serialization(schedule: List<ScheduleModel>): String? = Gson().toJson(schedule)
     fun setData(key: String, value: String) = prefs.edit { putString(key, value) }
 
     /**
@@ -24,6 +24,6 @@ class LocalDataManager(context: Context) {
      *  2. 로드된 데이터를 List<ScheduleModel>로 변환
      * @param json
      */
-    fun deserialization(json: String): MutableList<ScheduleModel> = Gson().fromJson(json, Array<ScheduleModel>::class.java).toMutableList()
+    fun deserialization(json: String): List<ScheduleModel> = Gson().fromJson(json, Array<ScheduleModel>::class.java).toMutableList()
     fun getData(key: String): String? = prefs.getString(key, null)
 }

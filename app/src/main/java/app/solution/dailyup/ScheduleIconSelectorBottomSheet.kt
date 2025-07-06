@@ -1,11 +1,11 @@
 package app.solution.dailyup
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridView
-import androidx.constraintlayout.widget.ConstraintLayout
 import app.solution.dailyup.adapter.ScheduleIconGridAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -26,6 +26,7 @@ class ScheduleIconSelectorBottomSheet(
         return inflater.inflate(R.layout.activity_schedule_icon_selector_bottom_sheet, container, false)
     }
 
+    @SuppressLint("DiscouragedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

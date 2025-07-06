@@ -65,7 +65,8 @@ dependencies {
     implementation(libs.gson)
 
     //    Glide
-    implementation (libs.glide)
+    implementation(libs.glide)
 
-    implementation (libs.material.v1110)
+    //    Material
+    implementation(libs.material.v1110)
 }
