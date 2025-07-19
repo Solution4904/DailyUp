@@ -1,34 +1,70 @@
 package app.solution.dailyup.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import app.solution.dailyup.databinding.ScheduleViewBinding
+import app.solution.dailyup.databinding.ScheduleViewCountingBinding
+import app.solution.dailyup.databinding.ScheduleViewNormalBinding
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.utility.ScheduleTypeEnum
+import app.solution.dailyup.utility.TraceLog
 
 class ScheduleAdapter(
-    private val scheduleModels: List<ScheduleModel>,
-    private val onIconClick: (ScheduleModel) -> Unit
-) : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>() {
-    inner class ScheduleViewHolder(private val binding: ScheduleViewBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(schedule: ScheduleModel) {
-            binding.schedule = schedule
-            binding.btnIcon.setOnClickListener { onIconClick(schedule) }
-            binding.executePendingBindings()
+    private val scheduleList: MutableList<ScheduleModel>,
+    private val onIconClick: (Int) -> Unit,
+    private val onItemClick: (Int) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(newScheduleList: List<ScheduleModel>) {
+        scheduleList.clear()
+        scheduleList.addAll(newScheduleList)
+        notifyDataSetChanged()
+    }
+
+    inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(position: Int) {
+            TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
+
+            binding.scheduleModel = scheduleList[position]
+            binding.layoutRoot.setOnClickListener { onItemClick(position) }
+
+            binding.btnIcon.setOnClickListener { onIconClick(position) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScheduleViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = ScheduleViewBinding.inflate(inflater, parent, false)
-        return ScheduleViewHolder(binding)
+    inner class ScheduleCountingViewHolder(private val binding: ScheduleViewCountingBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(position: Int) {
+            TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
+
+            binding.scheduleModel = scheduleList[position]
+            binding.layoutRoot.setOnClickListener { onItemClick(position) }
+
+            binding.pbIcon.setOnClickListener { onIconClick(position) }
+        }
     }
 
-    override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
-        holder.bind(scheduleModels[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        TraceLog(message = "ScheduleAdapter onCreateViewHolder -> $viewType")
+
+        return when (viewType) {
+            ScheduleTypeEnum.NORMAL.ordinal -> ScheduleNormalViewHolder(ScheduleViewNormalBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            ScheduleTypeEnum.COUNTING.ordinal -> ScheduleCountingViewHolder(ScheduleViewCountingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+            else -> ScheduleNormalViewHolder(ScheduleViewNormalBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        }
     }
 
-    override fun getItemCount(): Int {
-        return scheduleModels.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ScheduleNormalViewHolder -> holder.bind(position)
+            is ScheduleCountingViewHolder -> holder.bind(position)
+        }
+
+        TraceLog(message = "ScheduleAdapter onBindViewHolder -> $position")
     }
+
+    override fun getItemViewType(position: Int) = scheduleList[position].type.ordinal
+    override fun getItemCount(): Int = scheduleList.size
 }

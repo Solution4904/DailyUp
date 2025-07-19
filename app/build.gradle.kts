@@ -52,12 +52,21 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     //    ViewModel
-    implementation("androidx.activity:activity-ktx:1.10.1")
+    implementation(libs.androidx.activity.ktx)
 
     //    Hilt
     implementation(libs.hilt.android.v2511)
     ksp(libs.hilt.android.compiler.v2511)
 
     //    MVVM
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx.v291)
+
+    //    Gson
+    implementation(libs.gson)
+
+    //    Glide
+    implementation(libs.glide)
+
+    //    Material
+    implementation(libs.material.v1110)
 }
