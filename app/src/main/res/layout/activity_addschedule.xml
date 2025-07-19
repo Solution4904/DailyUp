@@ -98,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:hint="100"
-                    android:text="@{String.valueOf(viewModel.maxValue)}"
+                    android:text="@{String.valueOf(viewModel.processMaxValue)}"
                     android:textAlignment="viewEnd" />
 
                 <TextView
@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:hint="1"
-                    android:text="@{String.valueOf(viewModel.valueStep)}"
+                    android:text="@{String.valueOf(viewModel.processValueStep)}"
                     android:textAlignment="viewEnd" />
 
                 <TextView
@@ -131,17 +131,17 @@
                 android:id="@+id/slider"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:stepSize="@{viewModel.valueStep == null ? 1 : viewModel.valueStep}"
-                android:value="@{viewModel.value == null ? 0 : viewModel.value}"
+                android:stepSize="@{viewModel.processValueStep == null ? 1 : viewModel.processValueStep}"
+                android:value="@{viewModel.processValue == null ? 0 : viewModel.processValue}"
                 android:valueFrom="0"
-                android:valueTo="@{viewModel.maxValue == null ? 1 : viewModel.maxValue}"
+                android:valueTo="@{viewModel.processMaxValue == null ? 1 : viewModel.processMaxValue}"
                 tools:value="50"
                 tools:valueTo="100" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.value + `/` + viewModel.maxValue}"
+                android:text="@{viewModel.processValue + `/` + viewModel.processMaxValue}"
                 android:textAlignment="center"
                 tools:text="50 / 100" />
 

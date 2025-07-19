@@ -2,10 +2,7 @@ package app.solution.dailyup
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -14,23 +11,26 @@ import androidx.lifecycle.ViewModelProvider
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
+import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.ScheduleViewModel
-import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.UUID
 
 class AddScheduleActivity : AppCompatActivity() {
+    //    Variable
     private lateinit var binding: ActivityAddscheduleBinding
-    private lateinit var viewModel: ScheduleViewModel
-    private lateinit var intentLauncher: ActivityResultLauncher<Intent>
+    private lateinit var scheduleViewModel: ScheduleViewModel
+    //    private lateinit var selectIconResultLauncher: ActivityResultLauncher<Intent>
 
 
+    //    LifeCycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(this)[ScheduleViewModel::class.java]
+        scheduleViewModel = ViewModelProvider(this)[ScheduleViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_addschedule)
         binding.lifecycleOwner = this
-        binding.viewModel = this.viewModel
+        binding.viewModel = this.scheduleViewModel
 
         enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -40,27 +40,28 @@ class AddScheduleActivity : AppCompatActivity() {
         }
 
         initData()
-
-        setIntentLauncher()
+//        setSelectIconResultLauncher()
         setButtonsEvent()
     }
 
+    //    Function
     private fun initData() {
-        if (intent.hasExtra(ConstKeys.SCHEDULE_ID)) {
-            with(intent)
-            {
-                viewModel.type.value = (ScheduleTypeEnum.convert(getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()))
-                viewModel.id.value = (getStringExtra((ConstKeys.SCHEDULE_ID)).toString())
-                viewModel.title.value = (getStringExtra(ConstKeys.SCHEDULE_TITLE).toString())
-                viewModel.dec.value = (getStringExtra(ConstKeys.SCHEDULE_DEC).toString())
-                viewModel.iconResId.value = (getIntExtra(ConstKeys.SCHEDULE_ICONNAME, viewModel.iconResId.value ?: R.drawable.ic_schedule_default))
-                viewModel.maxValue.value = (getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, viewModel.maxValue.value ?: 1))
-                viewModel.valueStep.value= (getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, viewModel.valueStep.value ?: 1))
-                viewModel.value.value = (getIntExtra(ConstKeys.SCHEDULE_VALUE, viewModel.value.value ?: 0))
-            }
+        with(intent)
+        {
+            if (hasExtra(ConstKeys.SCHEDULE_ID)) {
+                scheduleViewModel.type.value = ScheduleTypeEnum.convert(getStringExtra(ConstKeys.SCHEDULE_TYPE).toString())
+                scheduleViewModel.id.value = getStringExtra(ConstKeys.SCHEDULE_ID).toString()
+                scheduleViewModel.title.value = getStringExtra(ConstKeys.SCHEDULE_TITLE).toString()
+                scheduleViewModel.dec.value = getStringExtra(ConstKeys.SCHEDULE_DEC).toString()
+                scheduleViewModel.iconResId.value = getIntExtra(ConstKeys.SCHEDULE_ICONNAME, scheduleViewModel.iconResId.value ?: R.drawable.ic_schedule_default)
+                scheduleViewModel.processMaxValue.value = getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, scheduleViewModel.processMaxValue.value ?: 1)
+                scheduleViewModel.processValueStep.value = getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, scheduleViewModel.processValueStep.value ?: 1)
+                scheduleViewModel.processValue.value = getIntExtra(ConstKeys.SCHEDULE_VALUE, scheduleViewModel.processValue.value ?: 0)
 
-            Log.d("TAG", "initData: ${viewModel.value}")
+            }
         }
+
+        TraceLog(message = "initData -> ${scheduleViewModel.scheduleModels.value}")
     }
 
     private fun setButtonsEvent() {
@@ -73,8 +74,8 @@ class AddScheduleActivity : AppCompatActivity() {
         binding.btnCancel.setOnClickListener { cancel() }
     }
 
-    private fun setIntentLauncher() {
-        intentLauncher = registerForActivityResult(
+    /*private fun setSelectIconResultLauncher() {
+        selectIconResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -87,58 +88,61 @@ class AddScheduleActivity : AppCompatActivity() {
                 }
             }
         }
-    }
+    }*/
 
     private fun popupTypeList() {
-        val types = resources.getStringArray(R.array.schedule_type_array)
+        val scheduleTypes = resources.getStringArray(R.array.schedule_type_array)
 
         MaterialAlertDialogBuilder(this@AddScheduleActivity)
             .setTitle("완료 방식")
-            .setItems(types) { dialog, which ->
-                viewModel.value.let {
-                    viewModel.type.value = ScheduleTypeEnum.convert(which)
-                }
+            .setItems(scheduleTypes) { dialog, which ->
+                scheduleViewModel.type.value = ScheduleTypeEnum.convert(which)
             }.show()
     }
 
     private fun popupIconList() {
         val fragment = ScheduleIconSelectorBottomSheet(
             onItemClick = { resId ->
-                binding.ibtnIcon.apply {
-                    setImageResource(resId)
-                    tag = resId
-                }
+                scheduleViewModel.iconResId.value = resId
             }
         )
+
         fragment.show(supportFragmentManager, fragment.tag)
     }
 
     private fun save() {
-        viewModel.apply {
-            title.value = (binding.etTitle.text.toString())
-            dec.value = (binding.etDec.text.toString())
-
-            if (viewModel.type.value == ScheduleTypeEnum.COUNTING) {
-                maxValue.value = (binding.etMaxValue.text.toString().toInt())
-                valueStep.value = (binding.etValueStep.text.toString().toInt())
-            } else {
-                iconResId.value = (binding.ibtnIcon.tag as Int)
-            }
-        }
+        val id = scheduleViewModel.id.value?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+        val title = binding.etTitle.text.toString()
+        val dec = binding.etDec.text.toString()
+        val iconResId = scheduleViewModel.iconResId.value ?: R.drawable.ic_schedule_default
+        val type = scheduleViewModel.type.value ?: ScheduleTypeEnum.NORMAL
+        val processMaxValue = binding.etMaxValue.text.toString().toIntOrNull() ?: 1
+        val processValueStep = binding.etValueStep.text.toString().toIntOrNull() ?: 1
+        val processValue = scheduleViewModel.processValue.value ?: 0
 
         val resultIntent = Intent().apply {
-            with(viewModel) {
-                putExtra(ConstKeys.SCHEDULE_ID, id.value)
-                putExtra(ConstKeys.SCHEDULE_TITLE, title.value)
-                putExtra(ConstKeys.SCHEDULE_DEC, dec.value)
-                putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId.value ?: R.drawable.ic_schedule_default)
-                putExtra(ConstKeys.SCHEDULE_TYPE, type.value?.name ?: ScheduleTypeEnum.NORMAL)
-                putExtra(ConstKeys.SCHEDULE_MAXVALUE, maxValue.value ?: 1)
-                putExtra(ConstKeys.SCHEDULE_VALUESTEP, valueStep.value ?: 1)
-                putExtra(ConstKeys.SCHEDULE_VALUE, value.value ?: 0)
+            with(scheduleViewModel) {
+                putExtra(ConstKeys.SCHEDULE_ID, id)
+                putExtra(ConstKeys.SCHEDULE_TITLE, title)
+                putExtra(ConstKeys.SCHEDULE_DEC, dec)
+                putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
+                putExtra(ConstKeys.SCHEDULE_TYPE, type.toString())
+                putExtra(ConstKeys.SCHEDULE_MAXVALUE, processMaxValue)
+                putExtra(ConstKeys.SCHEDULE_VALUESTEP, processValueStep)
+                putExtra(ConstKeys.SCHEDULE_VALUE, processValue)
             }
         }
         setResult(RESULT_OK, resultIntent)
+
+        val logText = StringBuilder()
+        val bundle = resultIntent.extras
+        if (bundle != null) {
+            for (key in bundle.keySet()) {
+                val value = bundle[key]
+                logText.append("\n$key : $value")
+            }
+        }
+        TraceLog(message = "save -> $logText")
 
         finish()
     }

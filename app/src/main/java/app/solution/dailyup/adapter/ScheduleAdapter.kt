@@ -1,5 +1,6 @@
 package app.solution.dailyup.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -7,32 +8,46 @@ import app.solution.dailyup.databinding.ScheduleViewCountingBinding
 import app.solution.dailyup.databinding.ScheduleViewNormalBinding
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ScheduleTypeEnum
+import app.solution.dailyup.utility.TraceLog
 
 class ScheduleAdapter(
-    private val list: List<ScheduleModel>,
+    private val scheduleList: MutableList<ScheduleModel>,
     private val onIconClick: (Int) -> Unit,
     private val onItemClick: (Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind() {
-            binding.schedule = list[adapterPosition]
-            binding.layoutRoot.setOnClickListener { onItemClick(adapterPosition) }
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(newScheduleList: List<ScheduleModel>) {
+        scheduleList.clear()
+        scheduleList.addAll(newScheduleList)
+        notifyDataSetChanged()
+    }
 
-            binding.btnIcon.setOnClickListener { onIconClick(adapterPosition) }
+    inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(position: Int) {
+            TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
+
+            binding.scheduleModel = scheduleList[position]
+            binding.layoutRoot.setOnClickListener { onItemClick(position) }
+
+            binding.btnIcon.setOnClickListener { onIconClick(position) }
         }
     }
 
     inner class ScheduleCountingViewHolder(private val binding: ScheduleViewCountingBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind() {
-            binding.scheduleModel = list[adapterPosition]
-            binding.layoutRoot.setOnClickListener { onItemClick(adapterPosition) }
+        fun bind(position: Int) {
+            TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
 
-            binding.pbIcon.setOnClickListener { onIconClick(adapterPosition) }
+            binding.scheduleModel = scheduleList[position]
+            binding.layoutRoot.setOnClickListener { onItemClick(position) }
+
+            binding.pbIcon.setOnClickListener { onIconClick(position) }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        TraceLog(message = "ScheduleAdapter onCreateViewHolder -> $viewType")
+
         return when (viewType) {
             ScheduleTypeEnum.NORMAL.ordinal -> ScheduleNormalViewHolder(ScheduleViewNormalBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             ScheduleTypeEnum.COUNTING.ordinal -> ScheduleCountingViewHolder(ScheduleViewCountingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -43,11 +58,13 @@ class ScheduleAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ScheduleNormalViewHolder -> holder.bind()
-            is ScheduleCountingViewHolder -> holder.bind()
+            is ScheduleNormalViewHolder -> holder.bind(position)
+            is ScheduleCountingViewHolder -> holder.bind(position)
         }
+
+        TraceLog(message = "ScheduleAdapter onBindViewHolder -> $position")
     }
 
-    override fun getItemViewType(position: Int) = list[position].type.ordinal
-    override fun getItemCount(): Int = list.size
+    override fun getItemViewType(position: Int) = scheduleList[position].type.ordinal
+    override fun getItemCount(): Int = scheduleList.size
 }

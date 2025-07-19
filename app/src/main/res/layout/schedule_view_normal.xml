@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="schedule"
+            name="scheduleModel"
             type="app.solution.dailyup.model.ScheduleModel" />
     </data>
 
@@ -44,7 +44,7 @@
                 android:layout_gravity="center"
                 android:background="@null"
                 android:scaleType="fitCenter"
-                app:scheduleIcon="@{schedule.iconResId}"
+                app:scheduleIcon="@{scheduleModel.iconResId}"
                 tools:ignore="contentDescription"
                 tools:src="@drawable/ic_schedule_default" />
 
@@ -54,7 +54,7 @@
                 android:layout_margin="6dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@{schedule.title}"
+                android:text="@{scheduleModel.title}"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 tools:text="TITLE"
@@ -66,7 +66,7 @@
                 android:layout_margin="6dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@{schedule.dec}"
+                android:text="@{scheduleModel.dec}"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 tools:text="DEC"

@@ -1,17 +1,9 @@
 package app.solution.dailyup.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import app.solution.dailyup.model.ScheduleModel
 
 class MainViewModel : ViewModel() {
-    private val _list = MutableLiveData<List<ScheduleModel>>(emptyList())
-    val list: LiveData<List<ScheduleModel>> = _list
 
-    val scheduleList: ArrayList<ScheduleModel> = arrayListOf()
-
-// TODO:
 
     /*fun setData(data : ScheduleModel) {
         if (scheduleList.find { it.id == scheduleModel.id } == null) {
