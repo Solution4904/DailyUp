@@ -64,4 +64,11 @@ class ScheduleViewModel : ViewModel() {
             TraceLog(message = "Schedule 추가 -> ${_scheduleModels.value}")
         }
     }
+
+    fun deleteSchedule(scheduleModel: ScheduleModel) {
+        _scheduleModels.value = _scheduleModels.value?.filter { it.id != scheduleModel.id }
+        MyAppication.localDataManager.saveSchedules(_scheduleModels.value!!)
+
+        TraceLog(message = "Schedule 삭제 -> $scheduleModel")
+    }
 }

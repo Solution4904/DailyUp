@@ -13,7 +13,8 @@ import app.solution.dailyup.utility.TraceLog
 class ScheduleAdapter(
     private val scheduleList: MutableList<ScheduleModel>,
     private val onIconClick: (Int) -> Unit,
-    private val onItemClick: (Int) -> Unit
+    private val onItemClick: (Int) -> Unit,
+    private val onItemLongClick: (Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
@@ -28,9 +29,22 @@ class ScheduleAdapter(
             TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
 
             binding.scheduleModel = scheduleList[position]
-            binding.layoutRoot.setOnClickListener { onItemClick(position) }
+            binding.layoutRoot.apply {
+                setOnClickListener {
+                    onItemClick(position)
+                }
 
-            binding.btnIcon.setOnClickListener { onIconClick(position) }
+                setOnLongClickListener {
+                    onItemLongClick(position)
+                    true
+                }
+            }
+
+            binding.btnIcon.apply {
+                setOnClickListener {
+                    onIconClick(position)
+                }
+            }
         }
     }
 
@@ -39,9 +53,20 @@ class ScheduleAdapter(
             TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
 
             binding.scheduleModel = scheduleList[position]
-            binding.layoutRoot.setOnClickListener { onItemClick(position) }
+            binding.layoutRoot.apply {
+                setOnClickListener {
+                    onItemClick(position)
+                }
 
-            binding.pbIcon.setOnClickListener { onIconClick(position) }
+                setOnLongClickListener {
+                    onItemLongClick(position)
+                    true
+                }
+            }
+
+            binding.pbIcon.apply {
+                setOnClickListener { onIconClick(position) }
+            }
         }
     }
 
