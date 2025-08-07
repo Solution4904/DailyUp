@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="일정"
-                android:textSize="16sp" />
+                android:textSize="24sp" />
 
             <Space
                 android:layout_width="0dp"
@@ -35,11 +35,25 @@
                 android:layout_weight="1" />
 
             <ImageButton
-                android:id="@+id/btn_option"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/btn_chart"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_weight="0.15"
                 android:background="?selectableItemBackground"
-                android:src="@drawable/ic_launcher_background"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_chart"
+                tools:ignore="contentDescription" />
+
+            <ImageButton
+                android:id="@+id/btn_settings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_weight="0.15"
+                android:background="?selectableItemBackground"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_settings"
                 tools:ignore="contentDescription" />
         </LinearLayout>
 

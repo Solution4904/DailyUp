@@ -58,8 +58,10 @@ class MainActivity : AppCompatActivity() {
 
     //    Function
     private fun addButtonsEvent() {
-        binding.btnAdd.setOnClickListener {
-            addScheduleResultLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java))
+        binding.apply {
+            btnAdd.setOnClickListener { addScheduleResultLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java)) }
+            btnChart.setOnClickListener { Intent(this@MainActivity, ChartActivity::class.java).also { startActivity(it) } }
+            btnSettings.setOnClickListener { Intent(this@MainActivity, SettingsActivity::class.java).also { startActivity(it) } }
         }
     }
 
