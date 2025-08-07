@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -73,6 +74,9 @@ class MainActivity : AppCompatActivity() {
             },
             onIconClick = { position ->
                 increaseScheduleProgress(position)
+            },
+            onItemLongClick = { position ->
+                popupScheduleItemDialog(position)
             }
         )
         binding.layoutRecyclerview.adapter = adapter
@@ -84,6 +88,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         scheduleViewModel.loadSchedules()
+    }
+
+    private fun popupScheduleItemDialog(position: Int) {
+        scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
+            val targetScheduleModel = scheduleModels[position]
+
+            AlertDialog.Builder(this@MainActivity).apply {
+                setTitle("제거 확인")
+                setMessage("선택하신 스케줄을 제거하시겠습니까?")
+                setPositiveButton("제거") { _, _ ->
+                    scheduleViewModel.deleteSchedule(targetScheduleModel)
+                }
+                setNegativeButton("취소") { _, _ -> }
+            }.show()
+        }
     }
 
     private fun increaseScheduleProgress(position: Int) {
