@@ -57,6 +57,43 @@
                 tools:ignore="contentDescription" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/layout_calendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layout_actionbar">
+
+            <ImageButton
+                android:id="@+id/btn_move_previous"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?selectableItemBackground"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_double_arrow_left"
+                tools:ignore="contentDescription" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/view_calendar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="8" />
+
+            <ImageButton
+                android:id="@+id/btn_move_next"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?selectableItemBackground"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_double_arrow_right"
+                tools:ignore="contentDescription" />
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/layout_recyclerview"
             android:layout_width="match_parent"
@@ -66,7 +103,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_actionbar" />
+            app:layout_constraintTop_toBottomOf="@+id/layout_calendar" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_add"

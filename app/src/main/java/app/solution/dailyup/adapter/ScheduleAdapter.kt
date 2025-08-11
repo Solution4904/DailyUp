@@ -8,7 +8,6 @@ import app.solution.dailyup.databinding.ScheduleViewCountingBinding
 import app.solution.dailyup.databinding.ScheduleViewNormalBinding
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ScheduleTypeEnum
-import app.solution.dailyup.utility.TraceLog
 
 class ScheduleAdapter(
     private val scheduleList: MutableList<ScheduleModel>,
@@ -26,8 +25,6 @@ class ScheduleAdapter(
 
     inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
-            TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
-
             binding.scheduleModel = scheduleList[position]
             binding.layoutRoot.apply {
                 setOnClickListener {
@@ -50,8 +47,6 @@ class ScheduleAdapter(
 
     inner class ScheduleCountingViewHolder(private val binding: ScheduleViewCountingBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
-            TraceLog(message = "ScheduleAdapter bind -> ${scheduleList[position]}")
-
             binding.scheduleModel = scheduleList[position]
             binding.layoutRoot.apply {
                 setOnClickListener {
@@ -71,8 +66,6 @@ class ScheduleAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        TraceLog(message = "ScheduleAdapter onCreateViewHolder -> $viewType")
-
         return when (viewType) {
             ScheduleTypeEnum.NORMAL.ordinal -> ScheduleNormalViewHolder(ScheduleViewNormalBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             ScheduleTypeEnum.COUNTING.ordinal -> ScheduleCountingViewHolder(ScheduleViewCountingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -86,8 +79,6 @@ class ScheduleAdapter(
             is ScheduleNormalViewHolder -> holder.bind(position)
             is ScheduleCountingViewHolder -> holder.bind(position)
         }
-
-        TraceLog(message = "ScheduleAdapter onBindViewHolder -> $position")
     }
 
     override fun getItemViewType(position: Int) = scheduleList[position].type.ordinal

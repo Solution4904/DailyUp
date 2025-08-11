@@ -74,22 +74,6 @@ class AddScheduleActivity : AppCompatActivity() {
         binding.btnCancel.setOnClickListener { cancel() }
     }
 
-    /*private fun setSelectIconResultLauncher() {
-        selectIconResultLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == RESULT_OK) {
-                result.data?.let {
-                    val fileName = it.getStringExtra(ConstKeys.SCHEDULE_ICONNAME)
-
-                    Glide.with(baseContext)
-                        .load(fileName)
-                        .into(binding.ibtnIcon)
-                }
-            }
-        }
-    }*/
-
     private fun popupTypeList() {
         val scheduleTypes = resources.getStringArray(R.array.schedule_type_array)
 
