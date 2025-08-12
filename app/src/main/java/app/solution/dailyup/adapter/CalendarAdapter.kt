@@ -1,5 +1,6 @@
 package app.solution.dailyup.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
@@ -8,17 +9,24 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import app.solution.dailyup.CalendarUtil
 import app.solution.dailyup.databinding.HorizontalCalendarItemBinding
-import app.solution.dailyup.utility.TraceLog
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.WeekFields
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 class CalendarAdapter(
-    private val onItemClickListener: (date: LocalDate) -> Unit
+    private val onItemClickListener: (date: LocalDate) -> Unit,
+    private val onUpdateDateEvent: (date: LocalDate) -> Unit,
 ) : RecyclerView.Adapter<CalendarAdapter.DateViewHolder>() {
-    private val weekDates: List<LocalDate> = CalendarUtil().getWeeklyDates()
-    private var selectedPosition: Int = -1
+    //    private val weekDates: List<LocalDate> = CalendarUtil().getWeeklyDates()
+    private var weekDates: List<LocalDate> = CalendarUtil().getWeeklyDates()
+    private var weekDate: LocalDate = LocalDate.now()
+    private var selectedPosition: Int
+
+    init {
+        selectedPosition = (weekDate.dayOfWeek.value % 7)
+    }
 
     inner class DateViewHolder(private val binding: HorizontalCalendarItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
@@ -34,8 +42,6 @@ class CalendarAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DateViewHolder {
-        TraceLog(message = "weekDatas : \n$weekDates")
-
         return DateViewHolder(HorizontalCalendarItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
@@ -43,13 +49,18 @@ class CalendarAdapter(
         holder.apply {
             bind(position)
 
-            if (position == selectedPosition) {
-                holder.itemView.setBackgroundColor(Color.BLUE)
+            if (weekDate.get((WeekFields.ISO).weekOfWeekBasedYear()) == LocalDate.now().get((WeekFields.ISO).weekOfWeekBasedYear())
+            ) {
+                if (position == selectedPosition) {
+                    itemView.setBackgroundColor(Color.BLUE)
+                } else {
+                    itemView.setBackgroundColor(Color.TRANSPARENT)
+                }
             } else {
-                holder.itemView.setBackgroundColor(Color.TRANSPARENT)
+                itemView.setBackgroundColor(Color.TRANSPARENT)
             }
 
-            holder.itemView.setOnClickListener {
+            itemView.setOnClickListener {
                 val previousPosition = selectedPosition
                 selectedPosition = adapterPosition
                 notifyItemChanged(previousPosition)
@@ -59,4 +70,14 @@ class CalendarAdapter(
     }
 
     override fun getItemCount() = weekDates.size
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateDates(newWeek: Int) {
+        weekDate = weekDate.plusWeeks(newWeek.toLong())
+        weekDates = CalendarUtil().getWeeklyDates(weekDate)
+
+        onUpdateDateEvent(weekDate)
+
+        notifyDataSetChanged()
+    }
 }

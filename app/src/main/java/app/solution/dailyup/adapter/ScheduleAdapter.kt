@@ -13,7 +13,7 @@ class ScheduleAdapter(
     private val scheduleList: MutableList<ScheduleModel>,
     private val onIconClick: (Int) -> Unit,
     private val onItemClick: (Int) -> Unit,
-    private val onItemLongClick: (Int) -> Unit
+    private val onItemLongClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")

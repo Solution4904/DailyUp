@@ -23,6 +23,7 @@ import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.ScheduleViewModel
+import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
     //    Variable
@@ -56,20 +57,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     //    Function
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun addButtonsEvent() {
         binding.apply {
             btnAdd.setOnClickListener { addScheduleResultLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java)) }
             btnChart.setOnClickListener { Intent(this@MainActivity, ChartActivity::class.java).also { startActivity(it) } }
             btnSettings.setOnClickListener { Intent(this@MainActivity, SettingsActivity::class.java).also { startActivity(it) } }
 
-            /*btnMovePrevious.setOnClickListener {
-                selectedDate = selectedDate.minusWeeks(1)
-                setCalendarRecyclerViewAdapter()
+            btnMovePrevious.setOnClickListener {
+                calendarAdapter.updateDates(-1)
             }
             btnMoveNext.setOnClickListener {
-                selectedDate = selectedDate.plusWeeks(1)
-                setCalendarRecyclerViewAdapter()
-            }*/
+                calendarAdapter.updateDates(1)
+            }
         }
     }
 
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             },
             onItemLongClick = { position ->
                 popupScheduleItemDialog(position)
-            }
+            },
         )
         binding.layoutRecyclerview.adapter = scheduleAdapter
 
@@ -177,19 +177,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCalendarRecyclerViewAdapter() {
-//        binding.viewCalendar.layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
         binding.viewCalendar.layoutManager = GridLayoutManager(this@MainActivity, 7)
 
         calendarAdapter = CalendarAdapter(
             onItemClickListener = {
 
+            },
+            onUpdateDateEvent = { updateDate ->
+                binding.tvYearAndMonth.text = "${updateDate.year}년 ${updateDate.monthValue}월"
             }
         )
         binding.viewCalendar.adapter = calendarAdapter
 
         calendarAdapter.notifyDataSetChanged()
+
+        val dateNow = LocalDate.now()
+        binding.tvYearAndMonth.text = "${dateNow.year}년 ${dateNow.monthValue}월"
     }
 }
