@@ -23,10 +23,16 @@ class ScheduleViewModel : ViewModel() {
     val scheduleModels: LiveData<List<ScheduleModel>> = _scheduleModels
 
 
-    fun loadSchedules() {
-        _scheduleModels.value = MyAppication.localDataManager.getSchedules()
+    fun loadSchedules(date: String = "") {
+        val lodedData = MyAppication.localDataManager.getSchedules()
 
-        TraceLog(message = "Schedule 로드 -> \nsize : ${_scheduleModels.value?.size}\n${_scheduleModels.value}")
+        if (date == "") {
+            _scheduleModels.value = lodedData
+        } else {
+            _scheduleModels.value = lodedData.filter { it.date == date }
+        }
+
+        TraceLog(message = "Schedule 로드 -> \nrequest date : $date\nsize : ${_scheduleModels.value?.size}\n${_scheduleModels.value}")
     }
 
     fun upsertSchedule(scheduleModel: ScheduleModel) {

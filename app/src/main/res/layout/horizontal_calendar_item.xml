@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--<data>
+
+        <variable
+            name=""
+            type="" />
+    </data>-->
+
+    <LinearLayout
+        android:id="@+id/layout_root"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="4dp"
+        tools:background="@color/black">
+
+        <TextView
+            android:id="@+id/tv_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="월" />
+
+        <TextView
+            android:id="@+id/tv_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            tools:text="1" />
+
+    </LinearLayout>
+</layout>

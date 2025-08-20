@@ -2,16 +2,20 @@ package app.solution.dailyup
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import app.solution.dailyup.adapter.CalendarAdapter
 import app.solution.dailyup.adapter.ScheduleAdapter
 import app.solution.dailyup.databinding.ActivityMainBinding
 import app.solution.dailyup.model.ScheduleModel
@@ -19,17 +23,20 @@ import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.ScheduleViewModel
+import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
     //    Variable
     private lateinit var binding: ActivityMainBinding
-    private lateinit var adapter: ScheduleAdapter
+    private lateinit var scheduleAdapter: ScheduleAdapter
+    private lateinit var calendarAdapter: CalendarAdapter
     private lateinit var addScheduleResultLauncher: ActivityResultLauncher<Intent>
 
     private val scheduleViewModel: ScheduleViewModel by viewModels()
 
 
     //    LifeCycle
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -44,32 +51,34 @@ class MainActivity : AppCompatActivity() {
         }
 
         addButtonsEvent()
-        setAdapter()
+        setScheduleRecyclerViewAdapter()
+        setCalendarRecyclerViewAdapter()
         setAddScheduleResultLauncher()
-
-//        loadScheduleList()
     }
 
-    /*override fun onStart() {
-        super.onStart()
-
-        refreshScheduleList()
-    }*/
-
     //    Function
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun addButtonsEvent() {
         binding.apply {
             btnAdd.setOnClickListener { addScheduleResultLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java)) }
             btnChart.setOnClickListener { Intent(this@MainActivity, ChartActivity::class.java).also { startActivity(it) } }
             btnSettings.setOnClickListener { Intent(this@MainActivity, SettingsActivity::class.java).also { startActivity(it) } }
+
+            btnMovePrevious.setOnClickListener {
+                calendarAdapter.updateDates(-1)
+            }
+            btnMoveNext.setOnClickListener {
+                calendarAdapter.updateDates(1)
+            }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("NotifyDataSetChanged")
-    private fun setAdapter() {
-        binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this)
+    private fun setScheduleRecyclerViewAdapter() {
+        binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        adapter = ScheduleAdapter(
+        scheduleAdapter = ScheduleAdapter(
             scheduleList = mutableListOf(),
             onItemClick = { position ->
                 sendScheduleDataWithIntent(position)
@@ -79,17 +88,17 @@ class MainActivity : AppCompatActivity() {
             },
             onItemLongClick = { position ->
                 popupScheduleItemDialog(position)
-            }
+            },
         )
-        binding.layoutRecyclerview.adapter = adapter
+        binding.layoutRecyclerview.adapter = scheduleAdapter
 
         scheduleViewModel.scheduleModels.observe(this) { list ->
             TraceLog(message = "scheduleModels observe -> $list")
 
-            adapter.updateList(list)
+            scheduleAdapter.updateList(list)
         }
 
-        scheduleViewModel.loadSchedules()
+        scheduleViewModel.loadSchedules(LocalDate.now().toString())
     }
 
     private fun popupScheduleItemDialog(position: Int) {
@@ -113,9 +122,9 @@ class MainActivity : AppCompatActivity() {
 
             if (targetScheduleModel.processMaxValue!! <= targetScheduleModel.processValue!!) return
 
-            val calculatedValue = targetScheduleModel.processValue?.plus(targetScheduleModel.processValueStep!!)
+            val calculatedValue = targetScheduleModel.processValue.plus(targetScheduleModel.processValueStep!!)
             val value =
-                if (calculatedValue!! > targetScheduleModel.processMaxValue!!) targetScheduleModel.processMaxValue
+                if (calculatedValue > targetScheduleModel.processMaxValue) targetScheduleModel.processMaxValue
                 else calculatedValue
 
             val resultScheduleModel = targetScheduleModel.copy(processValue = value)
@@ -140,10 +149,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun receiveScheduleDataWithIntent(intent: Intent) {
         val scheduleModel = ScheduleModel(
             id = intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
             title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
+            date = LocalDate.now().toString(),
             dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
             iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
             type = ScheduleTypeEnum.convert(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
@@ -157,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         TraceLog(message = "receiveScheduleDataWithIntent -> $scheduleModel")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setAddScheduleResultLauncher() {
         addScheduleResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -169,50 +181,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*    private fun loadScheduleList() {
-            MyAppication.localDataManager.getData(ConstKeys.SCHEDULE_LIST)?.let {
-                Log.d("TAG", "loadScheduleList: $it")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setCalendarRecyclerViewAdapter() {
+        binding.viewCalendar.layoutManager = GridLayoutManager(this@MainActivity, 7)
 
-                viewModel.scheduleList.clear()
-                viewModel.scheduleList.addAll(MyAppication.localDataManager.deserialization(it))
-
-                adapter = ScheduleAdapter(
-                    viewModel.scheduleList,
-                    onIconClick = { position ->
-                        Log.d("", "loadScheduleList: $position")
-                        val data = viewModel.scheduleList[position]
-                        Log.d("", "loadScheduleList: $data")
-                        val changeValue = data.value?.plus((data.valueStep ?: 1))
-                        Log.d("", "loadScheduleList: $changeValue")
-                        viewModel.scheduleList[position] = viewModel.scheduleList[position].copy(value = changeValue)
-                        adapter.notifyItemChanged(position)
-                    },
-                    onItemClick = { position ->
-                        intentLauncher.launch(Intent(this@MainActivity, AddScheduleActivity::class.java).apply {
-                            putExtra(ConstKeys.SCHEDULE_ID, viewModel.scheduleList[position].id)
-                            putExtra(ConstKeys.SCHEDULE_TITLE, viewModel.scheduleList[position].title)
-                            putExtra(ConstKeys.SCHEDULE_DEC, viewModel.scheduleList[position].dec)
-                            putExtra(ConstKeys.SCHEDULE_ICONNAME, viewModel.scheduleList[position].iconResId)
-                            putExtra(ConstKeys.SCHEDULE_TYPE, viewModel.scheduleList[position].type)
-                            putExtra(ConstKeys.SCHEDULE_MAXVALUE, viewModel.scheduleList[position].maxValue)
-                            putExtra(ConstKeys.SCHEDULE_VALUESTEP, viewModel.scheduleList[position].valueStep)
-                            putExtra(ConstKeys.SCHEDULE_VALUE, viewModel.scheduleList[position].value)
-                        })
-                    })
-
-                binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this)
-                binding.layoutRecyclerview.adapter = adapter
+        calendarAdapter = CalendarAdapter(
+            onDateClickEvent = { currentDate ->
+                scheduleViewModel.loadSchedules(currentDate.toString())
+            },
+            onUpdateDateEvent = { updateDate ->
+                binding.tvYearAndMonth.text = "${updateDate.year}년 ${updateDate.monthValue}월"
             }
-        }*/
+        )
+        binding.viewCalendar.adapter = calendarAdapter
 
-    /*@SuppressLint("NotifyDataSetChanged")
-    private fun refreshScheduleList() {
-        MyAppication.localDataManager.getData(ConstKeys.SCHEDULE_LIST)?.let {
-            Log.d("TAG", "refreshScheduleList: $it")
+        calendarAdapter.notifyDataSetChanged()
 
-            viewModel.scheduleList.clear()
-            viewModel.scheduleList.addAll(MyAppication.localDataManager.deserialization(it))
-            adapter.notifyDataSetChanged()
-        }
-    }*/
+        val dateNow = LocalDate.now()
+        binding.tvYearAndMonth.text = "${dateNow.year}년 ${dateNow.monthValue}월"
+    }
 }
