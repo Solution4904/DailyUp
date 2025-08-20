@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("NotifyDataSetChanged")
     private fun setScheduleRecyclerViewAdapter() {
         binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -97,7 +98,7 @@ class MainActivity : AppCompatActivity() {
             scheduleAdapter.updateList(list)
         }
 
-        scheduleViewModel.loadSchedules()
+        scheduleViewModel.loadSchedules(LocalDate.now().toString())
     }
 
     private fun popupScheduleItemDialog(position: Int) {
@@ -148,10 +149,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun receiveScheduleDataWithIntent(intent: Intent) {
         val scheduleModel = ScheduleModel(
             id = intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
             title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
+            date = LocalDate.now().toString(),
             dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
             iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
             type = ScheduleTypeEnum.convert(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
@@ -165,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         TraceLog(message = "receiveScheduleDataWithIntent -> $scheduleModel")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setAddScheduleResultLauncher() {
         addScheduleResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -183,8 +187,8 @@ class MainActivity : AppCompatActivity() {
         binding.viewCalendar.layoutManager = GridLayoutManager(this@MainActivity, 7)
 
         calendarAdapter = CalendarAdapter(
-            onItemClickListener = {
-
+            onDateClickEvent = { currentDate ->
+                scheduleViewModel.loadSchedules(currentDate.toString())
             },
             onUpdateDateEvent = { updateDate ->
                 binding.tvYearAndMonth.text = "${updateDate.year}년 ${updateDate.monthValue}월"

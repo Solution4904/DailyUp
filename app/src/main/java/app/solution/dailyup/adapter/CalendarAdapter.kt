@@ -11,21 +11,23 @@ import app.solution.dailyup.CalendarUtil
 import app.solution.dailyup.databinding.HorizontalCalendarItemBinding
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.WeekFields
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 class CalendarAdapter(
-    private val onItemClickListener: (date: LocalDate) -> Unit,
+    private val onDateClickEvent: (date: LocalDate) -> Unit,
     private val onUpdateDateEvent: (date: LocalDate) -> Unit,
 ) : RecyclerView.Adapter<CalendarAdapter.DateViewHolder>() {
-    //    private val weekDates: List<LocalDate> = CalendarUtil().getWeeklyDates()
     private var weekDates: List<LocalDate> = CalendarUtil().getWeeklyDates()
-    private var weekDate: LocalDate = LocalDate.now()
+    private var weekDate: LocalDate
     private var selectedPosition: Int
+    private var selectedDate: LocalDate
 
     init {
+        weekDate = LocalDate.now()
+
         selectedPosition = (weekDate.dayOfWeek.value % 7)
+        selectedDate = weekDates[selectedPosition]
     }
 
     inner class DateViewHolder(private val binding: HorizontalCalendarItemBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -35,8 +37,28 @@ class CalendarAdapter(
                 val day = date.dayOfMonth   // 날짜
                 val week = date.format(DateTimeFormatter.ofPattern("E", Locale.KOREAN))   // 요일
 
+                val checkDate = weekDates.find { it == selectedDate }
+                if (checkDate != null) {
+                    if (position == selectedPosition) {
+                        layoutRoot.setBackgroundColor(Color.BLUE)
+                    } else {
+                        layoutRoot.setBackgroundColor(Color.TRANSPARENT)
+                    }
+                } else {
+                    layoutRoot.setBackgroundColor(Color.TRANSPARENT)
+                }
+
                 tvDay.text = day.toString()
                 tvWeek.text = week.toString()
+
+                layoutRoot.setOnClickListener {
+                    selectedDate = date
+                    val previousPosition = selectedPosition
+                    selectedPosition = adapterPosition
+                    notifyItemChanged(previousPosition)
+                    notifyItemChanged(selectedPosition)
+                    onDateClickEvent(weekDates[position])
+                }
             }
         }
     }
@@ -48,24 +70,6 @@ class CalendarAdapter(
     override fun onBindViewHolder(holder: CalendarAdapter.DateViewHolder, position: Int) {
         holder.apply {
             bind(position)
-
-            if (weekDate.get((WeekFields.ISO).weekOfWeekBasedYear()) == LocalDate.now().get((WeekFields.ISO).weekOfWeekBasedYear())
-            ) {
-                if (position == selectedPosition) {
-                    itemView.setBackgroundColor(Color.BLUE)
-                } else {
-                    itemView.setBackgroundColor(Color.TRANSPARENT)
-                }
-            } else {
-                itemView.setBackgroundColor(Color.TRANSPARENT)
-            }
-
-            itemView.setOnClickListener {
-                val previousPosition = selectedPosition
-                selectedPosition = adapterPosition
-                notifyItemChanged(previousPosition)
-                notifyItemChanged(selectedPosition)
-            }
         }
     }
 

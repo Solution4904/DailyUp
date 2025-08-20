@@ -7,6 +7,7 @@ import java.util.UUID
 data class ScheduleModel(
     val type: ScheduleTypeEnum = ScheduleTypeEnum.NORMAL,
     val id: String = UUID.randomUUID().toString(),
+    val date: String = "",
     val title: String = "",
     val dec: String = "",
     val iconResId: Int? = R.drawable.ic_schedule_default,
