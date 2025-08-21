@@ -2,37 +2,22 @@ package app.solution.dailyup.utility
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.content.edit
+import app.solution.dailyup.CalendarUtil
+import app.solution.dailyup.TimePeriod
 import app.solution.dailyup.model.ScheduleModel
 import com.google.gson.Gson
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-class LocalDataManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences(ConstKeys.SHARED_PREFERENCES, Context.MODE_PRIVATE)
+object LocalDataManager {
+    private lateinit var prefs: SharedPreferences
 
-    /*
-        */
-    /**
-     * Serialization
-     *  1. List<ScheduleModel> 전달 받음
-     *  2. 전달받은 데이터를 Json으로 String 변환
-     * @param schedule
-     *//*
-
-    fun serialization(schedule: List<ScheduleModel>): String? = Gson().toJson(schedule)
-    fun setData(key: String, value: String) = prefs.edit { putString(key, value) }
-
-    */
-    /**
-     * Deserialization
-     *  1. String으로 데이터를 로드
-     *  2. 로드된 데이터를 List<ScheduleModel>로 변환
-     * @param json
-     *//*
-
-    fun deserialization(json: String): List<ScheduleModel> = Gson().fromJson(json, Array<ScheduleModel>::class.java).toMutableList()
-    fun getData(key: String): String? = prefs.getString(key, null)
-
-*/
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences(ConstKeys.SHARED_PREFERENCES, Context.MODE_PRIVATE)
+    }
 
     /**
      * Get schedules
@@ -52,6 +37,30 @@ class LocalDataManager(context: Context) {
         }
 
         TraceLog(message = "Schedule 로드 실패")
+        return listOf()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getSchedulesForPeriod(day: LocalDate, timePeriod: TimePeriod): List<ScheduleModel> {
+        val scheduleDatas = prefs.getString(ConstKeys.SCHEDULE_LIST, null)?.let {
+            Gson().fromJson(it, Array<ScheduleModel>::class.java).toList()
+        }
+
+        scheduleDatas?.let {
+            TraceLog(message = "Schedule 로드 성공")
+
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val datePair = CalendarUtil().getTheCurrentDays(day, timePeriod)
+            val startDate = LocalDate.parse(datePair.first.toString(), formatter)
+            val endDate = LocalDate.parse(datePair.second.toString(), formatter)
+
+            return scheduleDatas.filter { schedule ->
+                val scheduleDate = LocalDate.parse(schedule.date, formatter)
+                (scheduleDate.isEqual(startDate) || scheduleDate.isAfter(startDate)) &&
+                        (scheduleDate.isEqual(endDate) || scheduleDate.isBefore(endDate))
+            }
+        }
+
         return listOf()
     }
 

@@ -3,9 +3,9 @@ package app.solution.dailyup.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import app.solution.dailyup.MyAppication
 import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 
@@ -24,7 +24,7 @@ class ScheduleViewModel : ViewModel() {
 
 
     fun loadSchedules(date: String = "") {
-        val lodedData = MyAppication.localDataManager.getSchedules()
+        val lodedData = LocalDataManager.getSchedules()
 
         if (date == "") {
             _scheduleModels.value = lodedData
@@ -55,7 +55,7 @@ class ScheduleViewModel : ViewModel() {
         }
 
         if (_scheduleModels.value == null) return
-        MyAppication.localDataManager.saveSchedules(_scheduleModels.value!!)
+        LocalDataManager.saveSchedules(_scheduleModels.value!!)
 
         TraceLog(message = "Schedule 수정 -> $scheduleModel")
     }
@@ -65,7 +65,7 @@ class ScheduleViewModel : ViewModel() {
             val newDatas = datas + scheduleModel
             _scheduleModels.value = newDatas
 
-            MyAppication.localDataManager.saveSchedules(newDatas)
+            LocalDataManager.saveSchedules(newDatas)
 
             TraceLog(message = "Schedule 추가 -> ${_scheduleModels.value}")
         }
@@ -73,7 +73,7 @@ class ScheduleViewModel : ViewModel() {
 
     fun deleteSchedule(scheduleModel: ScheduleModel) {
         _scheduleModels.value = _scheduleModels.value?.filter { it.id != scheduleModel.id }
-        MyAppication.localDataManager.saveSchedules(_scheduleModels.value!!)
+        LocalDataManager.saveSchedules(_scheduleModels.value!!)
 
         TraceLog(message = "Schedule 삭제 -> $scheduleModel")
     }

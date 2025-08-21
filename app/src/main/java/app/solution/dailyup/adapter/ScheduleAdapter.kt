@@ -11,7 +11,8 @@ import app.solution.dailyup.utility.ScheduleTypeEnum
 
 class ScheduleAdapter(
     private val scheduleList: MutableList<ScheduleModel>,
-    private val onIconClick: (Int) -> Unit,
+    private val onIconClickForNormalType: (Int) -> Unit,
+    private val onIconClickForCountingType: (Int) -> Unit,
     private val onItemClick: (Int) -> Unit,
     private val onItemLongClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -39,7 +40,7 @@ class ScheduleAdapter(
 
             binding.btnIcon.apply {
                 setOnClickListener {
-                    onIconClick(position)
+                    onIconClickForNormalType(position)
                 }
             }
         }
@@ -60,7 +61,9 @@ class ScheduleAdapter(
             }
 
             binding.pbIcon.apply {
-                setOnClickListener { onIconClick(position) }
+                setOnClickListener {
+                    onIconClickForCountingType(position)
+                }
             }
         }
     }

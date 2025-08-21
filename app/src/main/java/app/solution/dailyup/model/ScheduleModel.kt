@@ -14,4 +14,5 @@ data class ScheduleModel(
     val processMaxValue: Int? = 1,
     val processValueStep: Int? = 1,
     val processValue: Int? = 0,
+    val isCompleted: Boolean = false,
 )
