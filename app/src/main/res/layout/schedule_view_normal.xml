@@ -44,7 +44,7 @@
                 android:layout_gravity="center"
                 android:background="@null"
                 android:scaleType="fitCenter"
-                app:scheduleIcon="@{scheduleModel.iconResId}"
+                app:scheduleUpdate="@{scheduleModel}"
                 tools:ignore="contentDescription"
                 tools:src="@drawable/ic_schedule_default" />
 

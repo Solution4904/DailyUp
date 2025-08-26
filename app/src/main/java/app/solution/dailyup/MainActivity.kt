@@ -83,7 +83,10 @@ class MainActivity : AppCompatActivity() {
             onItemClick = { position ->
                 sendScheduleDataWithIntent(position)
             },
-            onIconClick = { position ->
+            onIconClickForNormalType = { position ->
+                completeSchedule(position)
+            },
+            onIconClickForCountingType = { position ->
                 increaseScheduleProgress(position)
             },
             onItemLongClick = { position ->
@@ -128,6 +131,15 @@ class MainActivity : AppCompatActivity() {
                 else calculatedValue
 
             val resultScheduleModel = targetScheduleModel.copy(processValue = value)
+            scheduleViewModel.upsertSchedule(resultScheduleModel)
+        }
+    }
+
+    private fun completeSchedule(position: Int) {
+        scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
+            val targetScheduleModel = scheduleModels[position]
+
+            val resultScheduleModel = targetScheduleModel.copy(isCompleted = true)
             scheduleViewModel.upsertSchedule(resultScheduleModel)
         }
     }
