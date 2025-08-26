@@ -8,6 +8,8 @@ import java.time.temporal.TemporalAdjusters
 
 @RequiresApi(Build.VERSION_CODES.O)
 class CalendarUtil {
+    fun getToday(): LocalDate = LocalDate.now()
+
     fun getWeeklyDates(baseDate: LocalDate = LocalDate.now()): List<LocalDate> {
         val weekStart = baseDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
 

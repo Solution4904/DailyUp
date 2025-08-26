@@ -11,6 +11,7 @@ import app.solution.dailyup.utility.TraceLog
 
 class ScheduleViewModel : ViewModel() {
     val type = MutableLiveData<ScheduleTypeEnum>(ScheduleTypeEnum.NORMAL)
+    val date = MutableLiveData<String>("")
     val id = MutableLiveData<String>("")
     val title = MutableLiveData<String>("")
     val dec = MutableLiveData<String>("")
