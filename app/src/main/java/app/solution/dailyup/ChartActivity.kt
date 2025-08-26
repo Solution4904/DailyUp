@@ -1,5 +1,6 @@
 package app.solution.dailyup
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,7 @@ class ChartActivity : AppCompatActivity() {
 
 
     //  # LifeCycle
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -35,15 +37,29 @@ class ChartActivity : AppCompatActivity() {
 
 
     //  # Functions
+    @SuppressLint("SetTextI18n")
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setProgressBar() {
-        binding.progressbarDaily.progress = 50
-        binding.tvDaily.text = "5 / 10"
+        calulateAchievement(LocalDate.now(), TimePeriod.DAY).let {
+            binding.apply {
+                progressbarDaily.progress = it.rate.toInt()
+                tvDaily.text = "${it.achieved} / ${it.total}"
+            }
+        }
 
-        binding.progressbarWeekly.progress = 50
-        binding.tvWeekly.text = "5 / 10"
+        calulateAchievement(LocalDate.now(), TimePeriod.WEEK).let {
+            binding.apply {
+                progressbarWeekly.progress = it.rate.toInt()
+                tvWeekly.text = "${it.achieved} / ${it.total}"
+            }
+        }
 
-        binding.progressbarMonthly.progress = 50
-        binding.tvMonthly.text = "5 / 10"
+        calulateAchievement(LocalDate.now(), TimePeriod.MONTH).let {
+            binding.apply {
+                progressbarMonthly.progress = it.rate.toInt()
+                tvMonthly.text = "${it.achieved} / ${it.total}"
+            }
+        }
     }
 
     /**
@@ -54,14 +70,22 @@ class ChartActivity : AppCompatActivity() {
      * @return 성취율
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun calulateAchievement(day: LocalDate, timePeriod: TimePeriod): Float {
+    private fun calulateAchievement(day: LocalDate, timePeriod: TimePeriod): ScheduleAchievedBox {
         val schedules = LocalDataManager.getSchedulesForPeriod(day, timePeriod)
-        val achivementScheduls = schedules.filter {
-            it.processValue != null && it.processValue > 0
+        val scheduleAchieved = schedules.filter {
+            it.processValue == it.processMaxValue || it.isCompleted
         }
 
-        // TODO:백분율로 계산해서 리턴시켜야 함
-
-        return 0.0f
+        return ScheduleAchievedBox(
+            total = schedules.size,
+            achieved = scheduleAchieved.size,
+            rate = (scheduleAchieved.size.toDouble() / schedules.size.toDouble()) * 100
+        )
     }
 }
+
+data class ScheduleAchievedBox(
+    val total: Int,
+    val achieved: Int,
+    val rate: Double,
+)
