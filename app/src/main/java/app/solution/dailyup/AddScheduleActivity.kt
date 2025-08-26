@@ -1,8 +1,10 @@
 package app.solution.dailyup
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -13,7 +15,13 @@ import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.ScheduleViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class AddScheduleActivity : AppCompatActivity() {
@@ -24,6 +32,7 @@ class AddScheduleActivity : AppCompatActivity() {
 
 
     //    LifeCycle
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,7 +49,7 @@ class AddScheduleActivity : AppCompatActivity() {
         }
 
         initData()
-//        setSelectIconResultLauncher()
+
         setButtonsEvent()
     }
 
@@ -64,14 +73,53 @@ class AddScheduleActivity : AppCompatActivity() {
         TraceLog(message = "initData -> ${scheduleViewModel.scheduleModels.value}")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setButtonsEvent() {
-        binding.ibtnIcon.setOnClickListener { popupIconList() }
+        binding.apply {
+            etDate.setOnClickListener {
+                popupDatePicker()
+            }
+            ibtnIcon.setOnClickListener {
+                popupIconList()
+            }
 
-        binding.btnType.setOnClickListener { popupTypeList() }
+            btnType.setOnClickListener {
+                popupTypeList()
+            }
 
-        binding.btnConfirm.setOnClickListener { save() }
+            btnConfirm.setOnClickListener {
+                save()
+            }
 
-        binding.btnCancel.setOnClickListener { cancel() }
+            btnCancel.setOnClickListener {
+                cancel()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun popupDatePicker() {
+        val selectedDay = if (!scheduleViewModel.date.value.isNullOrEmpty()) {
+            LocalDate.parse(scheduleViewModel.date.value).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        } else {
+            MaterialDatePicker.todayInUtcMilliseconds()
+        }
+
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText("일정 날짜 선택")
+            .setSelection(selectedDay)
+            .build()
+        datePicker.show(supportFragmentManager, "datePicker")
+
+        datePicker.addOnPositiveButtonClickListener { selection ->
+            val selectedDate = Date(selection)
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val formattedDate = sdf.format(selectedDate)
+
+            scheduleViewModel.date.value = formattedDate
+
+            binding.etDate.setText(scheduleViewModel.date.value)
+        }
     }
 
     private fun popupTypeList() {
@@ -94,19 +142,22 @@ class AddScheduleActivity : AppCompatActivity() {
         fragment.show(supportFragmentManager, fragment.tag)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun save() {
         val id = scheduleViewModel.id.value?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+        val date = LocalDate.now().toString()
         val title = binding.etTitle.text.toString()
         val dec = binding.etDec.text.toString()
         val iconResId = scheduleViewModel.iconResId.value ?: R.drawable.ic_schedule_default
         val type = scheduleViewModel.type.value ?: ScheduleTypeEnum.NORMAL
-        val processMaxValue = binding.etMaxValue.text.toString().toIntOrNull() ?: 1
-        val processValueStep = binding.etValueStep.text.toString().toIntOrNull() ?: 1
+        val processMaxValue = binding.etCountingMax.text.toString().toIntOrNull() ?: 1
+        val processValueStep = binding.etCountingValueStep.text.toString().toIntOrNull() ?: 1
         val processValue = scheduleViewModel.processValue.value ?: 0
 
         val resultIntent = Intent().apply {
             with(scheduleViewModel) {
                 putExtra(ConstKeys.SCHEDULE_ID, id)
+                putExtra(ConstKeys.SCHEDULE_DATE, date)
                 putExtra(ConstKeys.SCHEDULE_TITLE, title)
                 putExtra(ConstKeys.SCHEDULE_DEC, dec)
                 putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
