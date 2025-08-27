@@ -145,7 +145,7 @@ class AddScheduleActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun save() {
         val id = scheduleViewModel.id.value?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
-        val date = LocalDate.now().toString()
+        val date = scheduleViewModel.date.value ?: LocalDate.now().toString()
         val title = binding.etTitle.text.toString()
         val dec = binding.etDec.text.toString()
         val iconResId = scheduleViewModel.iconResId.value ?: R.drawable.ic_schedule_default
