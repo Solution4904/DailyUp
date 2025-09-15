@@ -1,90 +1,144 @@
 package app.solution.dailyup.viewmodel
 
+import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.solution.dailyup.event.NavigationEvent
+import app.solution.dailyup.R
+import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.event.MainUiEvent
+import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.utility.ScheduleTypeEnum
+import app.solution.dailyup.utility.TraceLog
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class MainViewModel : ViewModel() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val _currentCalendar = MutableLiveData<LocalDate>(LocalDate.now())
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    val currentCalendar: LiveData<LocalDate> = _currentCalendar
+
+    private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
+    val navigationEvents = _navigationEvents.asSharedFlow()
+
+    private val _scheduleModel = MutableLiveData<ScheduleModel>()
+    val scheduleModel: LiveData<ScheduleModel> = _scheduleModel
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private var currentWeek: LocalDate = LocalDate.now()
+
+    private val _uiEvent = MutableSharedFlow<MainUiEvent>(
+        replay = 0,
+        extraBufferCapacity = 10,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val uiEvent = _uiEvent.asSharedFlow()
 
 
-    /*fun setData(data : ScheduleModel) {
-        if (scheduleList.find { it.id == scheduleModel.id } == null) {
-            scheduleList.add(scheduleModel)
-            Log.d("TAG", "새로 추가")
-        } else {
-            val targetIndex = scheduleList.indexOfFirst { it.id == scheduleModel.id }
-            if (targetIndex < 0) return@registerForActivityResult
+    /**
+     * Receive schedule data with intent
+     * 일정 추가 화면에서 데이터 받아오기
+     * @param intent
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun receiveScheduleDataWithIntent(intent: Intent) {
+        _scheduleModel.value = ScheduleModel(
+            id = intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
+            title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
+            date = intent.getStringExtra(ConstKeys.SCHEDULE_DATE).toString(),
+            dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
+            iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
+            type = ScheduleTypeEnum.convert(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
+            processMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
+            processValueStep = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
+            processValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0)
+        )
 
-            viewModel.scheduleList[targetIndex] = scheduleModel
-            Log.d("TAG", "수정 등록")
-        }
-
-        MyAppication.localDataManager.setData(ConstKeys.SCHEDULE_LIST, MyAppication.localDataManager.serialization(viewModel.scheduleList).toString())
+        TraceLog(message = "receiveScheduleDataWithIntent -> $scheduleModel")
     }
 
-    fun onIconClick(position: Int) {
-        Log.d("", "loadScheduleList: $position")
-        val data = viewModel.scheduleList[position]
-        Log.d("", "loadScheduleList: $data")
-        val changeValue = data.value?.plus((data.valueStep ?: 1))
-        Log.d("", "loadScheduleList: $changeValue")
-        viewModel.scheduleList[position] = viewModel.scheduleList[position].copy(value = changeValue)
-        adapter.notifyItemChanged(position)
-    }
-
-    fun clearScheduleList() {
-        MyAppication.localDataManager.getData(ConstKeys.SCHEDULE_LIST)?.let {
-            Log.d("TAG", "loadScheduleList: $it")
-            viewModel.scheduleList.clear()
-            viewModel.scheduleList.addAll(MyAppication.localDataManager.deserialization(it))
+    fun onScheduleCompleteClick(scheduleModel: ScheduleModel) {
+        viewModelScope.launch {
+            _uiEvent.emit(MainUiEvent.ScheduleComplete(scheduleModel))
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun refreshScheduleList() {
-        MyAppication.localDataManager.getData(ConstKeys.SCHEDULE_LIST)?.let {
-            Log.d("TAG", "refreshScheduleList: $it")
-
-            viewModel.scheduleList.clear()
-            viewModel.scheduleList.addAll(MyAppication.localDataManager.deserialization(it))
+    fun onScheduleIncreaseProcessClick(scheduleModel: ScheduleModel) {
+        viewModelScope.launch {
+            _uiEvent.emit(MainUiEvent.ScheduleIncreaseProcess(scheduleModel))
         }
-    }*/
+    }
 
-//    fun getType() = scheduleModel.value?.type ?: ScheduleTypeEnum.NORMAL
-//    fun setType(p: ScheduleTypeEnum) {
-//        scheduleModel.value = scheduleModel.value?.copy(type = p)
-//    }
-//
-//    fun getId() = scheduleModel.value?.id ?: UUID.randomUUID().toString()
-//    fun setId(p: String) {
-//        scheduleModel.value = scheduleModel.value?.copy(id = p)
-//    }
-//
-//    fun getTitle() = scheduleModel.value?.title ?: ""
-//    fun setTitle(p: String) {
-//        scheduleModel.value = scheduleModel.value?.copy(title = p)
-//    }
-//
-//    fun getDec() = scheduleModel.value?.dec ?: ""
-//    fun setDec(p: String) {
-//        scheduleModel.value = scheduleModel.value?.copy(dec = p)
-//    }
-//
-//    fun getIconName() = scheduleModel.value?.iconResId ?: R.drawable.ic_schedule_default
-//    fun setIconName(p: Int) {
-//        scheduleModel.value = scheduleModel.value?.copy(iconResId = p)
-//    }
-//
-//    fun getMaxValue() = scheduleModel.value?.maxValue ?: 1
-//    fun setMaxValue(p: Int) {
-//        scheduleModel.value = scheduleModel.value?.copy(maxValue = p)
-//    }
-//
-//    fun getValueStep() = scheduleModel.value?.valueStep ?: 1
-//    fun setValueStep(p: Int) {
-//        scheduleModel.value = scheduleModel.value?.copy(valueStep = p)
-//    }
-//
-//    fun getValue() = scheduleModel.value?.value ?: 0
-//    fun setValue(p: Int) {
-//        scheduleModel.value = scheduleModel.value?.copy(value = p)
-//    }
+    /**
+     * On edit schedule click
+     * 일정 수정 화면으로 이동
+     * @param scheduleModel 수정 대상 ScheduleModel
+     */
+    fun onEditScheduleClick(scheduleModel: ScheduleModel) {
+        viewModelScope.launch {
+            _navigationEvents.emit(NavigationEvent.MoveToEditScheduleActivity(scheduleModel))
+        }
+    }
+
+    /**
+     * On schedule item lonk clicked
+     * 일정 제거 확인 다이얼로그 팝업
+     */
+    fun onScheduleDeleteDialog(scheduleModel: ScheduleModel) {
+        viewModelScope.launch {
+            _uiEvent.emit(MainUiEvent.ShowDeleteScheduleDialog(scheduleModel))
+        }
+    }
+
+    /**
+     * On move to another week
+     * 주간 달력 주차 이동
+     * @param request 이동할 주차(+1, -1)
+     */
+    fun onMoveToAnotherWeek(request: Int) {
+        currentWeek = currentWeek.plusWeeks(request.toLong())
+
+        _currentCalendar.value = currentWeek
+
+        TraceLog(message = "onMoveToAnotherWeek -> ${_currentCalendar.value}")
+    }
+
+    /**
+     * On move add schedule click
+     * 일정 추가 화면으로 이동
+     */
+    fun onMoveAddScheduleClick() {
+        viewModelScope.launch {
+            _navigationEvents.emit(NavigationEvent.MoveToAddScheduleActivity)
+        }
+    }
+
+    /**
+     * On move chart click
+     * 통계 화면으로 이동
+     */
+    fun onMoveChartClick() {
+        viewModelScope.launch {
+            _navigationEvents.emit(NavigationEvent.MoveToChartActivity)
+        }
+    }
+
+    /**
+     * On move setting click
+     * 옵션 화면으로 이동
+     */
+    fun onMoveSettingClick() {
+        viewModelScope.launch {
+            _navigationEvents.emit(NavigationEvent.MoveToSettingActivity)
+        }
+    }
 }

@@ -4,6 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="app.solution.dailyup.viewmodel.MainViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
@@ -41,6 +48,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="0.15"
                 android:background="?selectableItemBackground"
+                android:onClick="@{()->viewModel.onMoveChartClick()}"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_chart"
                 tools:ignore="contentDescription" />
@@ -52,6 +60,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="0.15"
                 android:background="?selectableItemBackground"
+                android:onClick="@{()->viewModel.onMoveSettingClick()}"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_settings"
                 tools:ignore="contentDescription" />
@@ -88,6 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="?selectableItemBackground"
+                    android:onClick="@{()->viewModel.onMoveToAnotherWeek(-1)}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_double_arrow_left"
                     tools:ignore="contentDescription" />
@@ -104,6 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="?selectableItemBackground"
+                    android:onClick="@{()->viewModel.onMoveToAnotherWeek(+1)}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_double_arrow_right"
                     tools:ignore="contentDescription" />
@@ -126,6 +137,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:onClick="@{()->viewModel.onMoveAddScheduleClick()}"
             android:src="@drawable/ic_add_circle"
             app:fabCustomSize="36dp"
             app:layout_constraintBottom_toBottomOf="parent"
