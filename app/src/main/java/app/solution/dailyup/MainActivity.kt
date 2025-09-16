@@ -176,31 +176,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
-    private fun increaseScheduleProgress(position: Int) {
-        scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-            val targetScheduleModel = scheduleModels[position]
-
-            if (targetScheduleModel.processMaxValue!! <= targetScheduleModel.processValue!!) return
-
-            val calculatedValue = targetScheduleModel.processValue.plus(targetScheduleModel.processValueStep!!)
-            val value =
-                if (calculatedValue > targetScheduleModel.processMaxValue) targetScheduleModel.processMaxValue
-                else calculatedValue
-
-            val resultScheduleModel = targetScheduleModel.copy(processValue = value)
-            scheduleViewModel.upsertSchedule(resultScheduleModel)
-        }
-    }
-
-    private fun completeSchedule(position: Int) {
-        scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-            val targetScheduleModel = scheduleModels[position]
-
-            val resultScheduleModel = targetScheduleModel.copy(isCompleted = true)
-            scheduleViewModel.upsertSchedule(resultScheduleModel)
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCalendarRecyclerViewAdapter() {

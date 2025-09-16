@@ -2,21 +2,20 @@ package app.solution.dailyup
 
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
+import app.solution.dailyup.event.AddScheduleUiEvent
+import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
+import app.solution.dailyup.viewmodel.AddScheduleViewModel
 import app.solution.dailyup.viewmodel.ScheduleViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -24,15 +23,15 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
-class AddScheduleActivity : AppCompatActivity() {
+class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.activity_addschedule) {
     //    Variable
-    private lateinit var binding: ActivityAddscheduleBinding
-    private val viewModel: ScheduleViewModel by viewModels()
+    private val viewModel: AddScheduleViewModel by viewModels()
+//    private val viewModel: ScheduleViewModel by viewModels()
     //    private lateinit var selectIconResultLauncher: ActivityResultLauncher<Intent>
 
 
     //    LifeCycle
-    @RequiresApi(Build.VERSION_CODES.O)
+    /*@RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,9 +49,40 @@ class AddScheduleActivity : AppCompatActivity() {
         initData()
 
         setButtonsEvent()
+    }*/
+
+    override fun init() {
+        binding.viewModel = viewModel
+
+        checkIntentData()
     }
 
-    //    Function
+    private fun checkIntentData() {
+        if (intent.hasExtra(ConstKeys.SCHEDULE_ID)) {
+            viewModel.setData(ScheduleModel)
+            // TODO: 이어서. 2025-09-16 
+        }
+    }
+
+    /**
+     * Observe event
+     * 이벤트 관찰
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun observeEvent() {
+        lifecycleScope.launch {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is AddScheduleUiEvent.ShowDatePicker -> popupDatePicker()
+                    is AddScheduleUiEvent.ShowIconPicker -> popupIconList()
+                    is AddScheduleUiEvent.ShowTypePicker -> popupTypeList()
+                    is AddScheduleUiEvent.ScheduleSave -> viewModel.onConfirmClicked()
+                    is AddScheduleUiEvent.ScheduleCancel -> viewModel.onCancelClicked()
+                }
+            }
+        }
+    }
+
     private fun initData() {
         with(intent)
         {
@@ -73,7 +103,7 @@ class AddScheduleActivity : AppCompatActivity() {
         TraceLog(message = "initData -> ${viewModel.scheduleModels.value}")
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    /*@RequiresApi(Build.VERSION_CODES.O)
     private fun setButtonsEvent() {
         binding.apply {
             etDate.setOnClickListener {
@@ -95,7 +125,7 @@ class AddScheduleActivity : AppCompatActivity() {
                 cancel()
             }
         }
-    }
+    }*/
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun popupDatePicker() {
