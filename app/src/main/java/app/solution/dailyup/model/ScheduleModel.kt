@@ -11,8 +11,8 @@ data class ScheduleModel(
     val title: String = "",
     val dec: String = "",
     val iconResId: Int? = R.drawable.ic_schedule_default,
-    val processMaxValue: Int? = 1,
-    val processValueStep: Int? = 1,
-    val processValue: Int? = 0,
+    val progressMaxValue: Int? = 1,
+    val progressStepValue: Int? = 1,
+    val progressValue: Int? = 0,
     val isCompleted: Boolean = false,
 )

@@ -19,16 +19,9 @@ sealed class NavigationEvent {
 
     /**
      * Move to add schedule activity
-     * 일정 추가 화면으로 이동
+     * 일정 추가로 이동
+     * @property scheduleModel 일정 수정일 경우 수정할 데이터
      * @constructor Create empty Move to add schedule activity
      */
-    object MoveToAddScheduleActivity : NavigationEvent()        //  일정 추가로 이동
-
-    /**
-     * Move to edit schedule activity
-     * 일정 수정 화면으로 이동
-     * @property scheduleModel
-     * @constructor Create empty Move to edit schedule activity
-     */
-    data class MoveToEditScheduleActivity(val scheduleModel: ScheduleModel): NavigationEvent()   //  일정 수정으로 이동
+    data class MoveToAddScheduleActivity(val scheduleModel:ScheduleModel?) : NavigationEvent()        //  일정 추가로 이동
 }

@@ -5,13 +5,13 @@ enum class ScheduleTypeEnum(val displayName: String) {
     COUNTING("할당 방식");
 
     companion object {
-        fun convert(value: String): ScheduleTypeEnum = when (value) {
+        fun convertToType(value: String): ScheduleTypeEnum = when (value) {
             NORMAL.name -> NORMAL
             COUNTING.name -> COUNTING
             else -> NORMAL
         }
 
-        fun convert(value: Int): ScheduleTypeEnum = when (value) {
+        fun convertToType(value: Int): ScheduleTypeEnum = when (value) {
             NORMAL.ordinal -> NORMAL
             COUNTING.ordinal -> COUNTING
             else -> NORMAL

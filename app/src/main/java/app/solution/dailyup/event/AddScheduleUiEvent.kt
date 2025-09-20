@@ -1,5 +1,7 @@
 package app.solution.dailyup.event
 
+import app.solution.dailyup.model.ScheduleModel
+
 sealed class AddScheduleUiEvent {
     /**
      * Show date picker
@@ -25,9 +27,10 @@ sealed class AddScheduleUiEvent {
     /**
      * Schedule save
      * 일정 저장 이벤트
+     * @property scheduleModel
      * @constructor Create empty Schedule save
      */
-    object ScheduleSave : AddScheduleUiEvent()
+    data class ScheduleSave(val scheduleModel: ScheduleModel) : AddScheduleUiEvent()
 
     /**
      * Schedule cancel

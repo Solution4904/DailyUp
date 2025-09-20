@@ -42,8 +42,8 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:indeterminate="false"
-                android:max="@{scheduleModel.processMaxValue}"
-                android:progress="@{scheduleModel.processValue}"
+                android:max="@{scheduleModel.progressMaxValue}"
+                android:progress="@{scheduleModel.progressValue}"
                 tools:max="10"
                 tools:progress="7" />
 

@@ -73,7 +73,7 @@ class ChartActivity : AppCompatActivity() {
     private fun calulateAchievement(day: LocalDate, timePeriod: TimePeriod): ScheduleAchievedBox {
         val schedules = LocalDataManager.getSchedulesForPeriod(day, timePeriod)
         val scheduleAchieved = schedules.filter {
-            it.processValue == it.processMaxValue || it.isCompleted
+            it.progressValue == it.progressMaxValue || it.isCompleted
         }
 
         return ScheduleAchievedBox(

@@ -1,7 +1,8 @@
 package app.solution.dailyup
 
-import android.content.Intent
 import android.os.Build
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
@@ -10,7 +11,6 @@ import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
-import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.AddScheduleViewModel
 import app.solution.dailyup.viewmodel.ScheduleViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -26,9 +26,8 @@ import java.util.UUID
 class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.activity_addschedule) {
     //    Variable
     private val viewModel: AddScheduleViewModel by viewModels()
-//    private val viewModel: ScheduleViewModel by viewModels()
+    private val scheduleViewModel: ScheduleViewModel by viewModels()
     //    private lateinit var selectIconResultLauncher: ActivityResultLauncher<Intent>
-
 
     //    LifeCycle
     /*@RequiresApi(Build.VERSION_CODES.O)
@@ -51,17 +50,58 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         setButtonsEvent()
     }*/
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun init() {
         binding.viewModel = viewModel
 
-        checkIntentData()
+        initIntentData()
+
+        observeEvent()
+
+        supportTwoWayBinding()
     }
 
-    private fun checkIntentData() {
-        if (intent.hasExtra(ConstKeys.SCHEDULE_ID)) {
-            viewModel.setData(ScheduleModel)
-            // TODO: 이어서. 2025-09-16 
-        }
+    /**
+     * Check intent data
+     * 일정 편집으로 들어왔는지 확인 후 ViewModel에 데이터 세팅 호출.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun initIntentData() {
+        val scheduleModel = ScheduleModel(
+            id = (intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: UUID.randomUUID()).toString(),
+            date = (intent.getStringExtra(ConstKeys.SCHEDULE_DATE) ?: LocalDate.now()).toString(),
+            title = (intent.getStringExtra(ConstKeys.SCHEDULE_TITLE) ?: "").toString(),
+            dec = (intent.getStringExtra(ConstKeys.SCHEDULE_DEC) ?: "").toString(),
+            iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
+            type = ScheduleTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
+            progressMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
+            progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
+            progressValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0)
+        )
+
+        viewModel.setData(scheduleModel)
+    }
+
+    private fun supportTwoWayBinding() {
+        binding.etProgressMaxValue.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(p0: Editable?) {
+                viewModel.setProgressMaxValue(p0.toString())
+            }
+        })
+
+        binding.etProgressStepValue.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(p0: Editable?) {
+                viewModel.setProgressStepValue(p0.toString())
+            }
+        })
     }
 
     /**
@@ -76,14 +116,23 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
                     is AddScheduleUiEvent.ShowDatePicker -> popupDatePicker()
                     is AddScheduleUiEvent.ShowIconPicker -> popupIconList()
                     is AddScheduleUiEvent.ShowTypePicker -> popupTypeList()
-                    is AddScheduleUiEvent.ScheduleSave -> viewModel.onConfirmClicked()
-                    is AddScheduleUiEvent.ScheduleCancel -> viewModel.onCancelClicked()
+                    is AddScheduleUiEvent.ScheduleSave -> scheduleSave(event.scheduleModel)
+                    is AddScheduleUiEvent.ScheduleCancel -> scheduleCancel()
                 }
             }
         }
     }
 
-    private fun initData() {
+    //    @RequiresApi(Build.VERSION_CODES.O)
+    private fun scheduleSave(scheduleModel: ScheduleModel) {
+        scheduleViewModel.upsertSchedule(scheduleModel)
+
+        finish()
+    }
+
+    private fun scheduleCancel() = finish()
+
+    /*private fun initData() {
         with(intent)
         {
             if (hasExtra(ConstKeys.SCHEDULE_ID)) {
@@ -101,7 +150,7 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         }
 
         TraceLog(message = "initData -> ${viewModel.scheduleModels.value}")
-    }
+    }*/
 
     /*@RequiresApi(Build.VERSION_CODES.O)
     private fun setButtonsEvent() {
@@ -146,9 +195,9 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val formattedDate = sdf.format(selectedDate)
 
-            viewModel.date.value = formattedDate
+            viewModel.setDate(formattedDate)
 
-            binding.etDate.setText(viewModel.date.value)
+//            `binding`.etDate.setText(viewModel.date.value)
         }
     }
 
@@ -158,21 +207,21 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         MaterialAlertDialogBuilder(this@AddScheduleActivity)
             .setTitle("완료 방식")
             .setItems(scheduleTypes) { dialog, which ->
-                viewModel.type.value = ScheduleTypeEnum.convert(which)
+                viewModel.setType(ScheduleTypeEnum.convertToType(which))
             }.show()
     }
 
     private fun popupIconList() {
         val fragment = ScheduleIconSelectorBottomSheet(
             onItemClick = { resId ->
-                viewModel.iconResId.value = resId
+                viewModel.setIconResId(resId)
             }
         )
 
         fragment.show(supportFragmentManager, fragment.tag)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    /*@RequiresApi(Build.VERSION_CODES.O)
     private fun save() {
         val id = viewModel.id.value?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
         val date = viewModel.date.value ?: LocalDate.now().toString()
@@ -210,9 +259,5 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         TraceLog(message = "save -> $logText")
 
         finish()
-    }
-
-    private fun cancel() {
-        finish()
-    }
+    }*/
 }

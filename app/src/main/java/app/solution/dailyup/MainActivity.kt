@@ -2,7 +2,6 @@ package app.solution.dailyup
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -15,7 +14,6 @@ import app.solution.dailyup.adapter.CalendarAdapter
 import app.solution.dailyup.adapter.ScheduleAdapter
 import app.solution.dailyup.databinding.ActivityMainBinding
 import app.solution.dailyup.event.MainUiEvent
-import app.solution.dailyup.event.NavigationEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.MainViewModel
@@ -34,19 +32,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val appNavigator = AppNavigator()
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private val addScheduleResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            result.data?.let { resultIntent ->
-                viewModel.receiveScheduleDataWithIntent(resultIntent)
-            }
-        }
-    }
-
 
     //    LifeCycle
+    override fun onResume() {
+        super.onResume()
+
+        // TODO: 각 리스트 최신화
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun init() {
         binding.viewModel = viewModel
@@ -99,20 +92,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEvents.collectLatest { event ->
-                    when (event) {
-                        is NavigationEvent.MoveToAddScheduleActivity -> {
-                            appNavigator.navigate(this@MainActivity, event, addScheduleResultLauncher)
-                        }
-
-                        is NavigationEvent.MoveToEditScheduleActivity -> {
-                            val eventWithData = NavigationEvent.MoveToEditScheduleActivity(event.scheduleModel)
-                            appNavigator.navigate(this@MainActivity, eventWithData, addScheduleResultLauncher)
-                        }
-
-                        else -> {
-                            appNavigator.navigate(this@MainActivity, event)
-                        }
-                    }
+                    appNavigator.navigate(this@MainActivity, event)
                 }
             }
         }
@@ -138,14 +118,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
                     val targetScheduleModel = scheduleModels[position]
 
-                    if (targetScheduleModel.processMaxValue!! <= targetScheduleModel.processValue!!) return@let
+                    if (targetScheduleModel.progressMaxValue!! <= targetScheduleModel.progressValue!!) return@let
 
-                    val calculatedValue = targetScheduleModel.processValue.plus(targetScheduleModel.processValueStep!!)
+                    val calculatedValue = targetScheduleModel.progressValue.plus(targetScheduleModel.progressStepValue!!)
                     val value =
-                        if (calculatedValue > targetScheduleModel.processMaxValue) targetScheduleModel.processMaxValue
+                        if (calculatedValue > targetScheduleModel.progressMaxValue) targetScheduleModel.progressMaxValue
                         else calculatedValue
 
-                    viewModel.onScheduleIncreaseProcessClick(scheduleModels[position].copy(processValue = value))
+                    viewModel.onScheduleIncreaseProcessClick(scheduleModels[position].copy(progressValue = value))
                 }
             },
             onItemLongClick = { position ->
