@@ -2,6 +2,7 @@ package app.solution.dailyup
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import app.solution.dailyup.event.NavigationEvent
 import app.solution.dailyup.utility.ConstKeys
 
@@ -9,6 +10,7 @@ class AppNavigator {
     fun navigate(
         activity: Activity,
         event: NavigationEvent,
+        activityLauncher: ActivityResultLauncher<Intent>? = null
     ) {
         when (event) {
             is NavigationEvent.MoveToChartActivity -> {
@@ -20,20 +22,24 @@ class AppNavigator {
             }
 
             is NavigationEvent.MoveToAddScheduleActivity -> {
-                val intent = Intent(activity, AddScheduleActivity::class.java).apply {
-                    event.scheduleModel?.let {
-                        putExtra(ConstKeys.SCHEDULE_ID, event.scheduleModel.id)
-                        putExtra(ConstKeys.SCHEDULE_TITLE, event.scheduleModel.title)
-                        putExtra(ConstKeys.SCHEDULE_DATE, event.scheduleModel.date)
-                        putExtra(ConstKeys.SCHEDULE_DEC, event.scheduleModel.dec)
-                        putExtra(ConstKeys.SCHEDULE_ICONNAME, event.scheduleModel.iconResId)
-                        putExtra(ConstKeys.SCHEDULE_TYPE, event.scheduleModel.type.name)
-                        putExtra(ConstKeys.SCHEDULE_MAXVALUE, event.scheduleModel.progressMaxValue)
-                        putExtra(ConstKeys.SCHEDULE_VALUESTEP, event.scheduleModel.progressStepValue)
-                        putExtra(ConstKeys.SCHEDULE_VALUE, event.scheduleModel.progressValue)
+                if (event.scheduleModel == null) {
+                    activityLauncher?.launch(Intent(activity, AddScheduleActivity::class.java))
+                } else {
+                    val intent = Intent(activity, AddScheduleActivity::class.java).apply {
+                        event.scheduleModel?.let {
+                            putExtra(ConstKeys.SCHEDULE_ID, event.scheduleModel.id)
+                            putExtra(ConstKeys.SCHEDULE_TITLE, event.scheduleModel.title)
+                            putExtra(ConstKeys.SCHEDULE_DATE, event.scheduleModel.date)
+                            putExtra(ConstKeys.SCHEDULE_DEC, event.scheduleModel.dec)
+                            putExtra(ConstKeys.SCHEDULE_ICONNAME, event.scheduleModel.iconResId)
+                            putExtra(ConstKeys.SCHEDULE_TYPE, event.scheduleModel.type.name)
+                            putExtra(ConstKeys.SCHEDULE_MAXVALUE, event.scheduleModel.progressMaxValue)
+                            putExtra(ConstKeys.SCHEDULE_VALUESTEP, event.scheduleModel.progressStepValue)
+                            putExtra(ConstKeys.SCHEDULE_VALUE, event.scheduleModel.progressValue)
+                        }
                     }
+                    activity.startActivity(intent)
                 }
-                activity.startActivity(intent)
             }
         }
     }

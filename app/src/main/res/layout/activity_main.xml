@@ -145,5 +145,17 @@
             app:maxImageSize="48dp"
             tools:ignore="contentDescription" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_launcher_foreground"
+            app:fabCustomSize="36dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:maxImageSize="48dp"
+            tools:ignore="contentDescription" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

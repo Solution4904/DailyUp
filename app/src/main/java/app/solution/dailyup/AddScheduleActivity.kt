@@ -1,5 +1,6 @@
 package app.solution.dailyup
 
+import android.content.Intent
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,8 +12,8 @@ import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.ScheduleTypeEnum
+import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.AddScheduleViewModel
-import app.solution.dailyup.viewmodel.ScheduleViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ import java.util.UUID
 class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.activity_addschedule) {
     //    Variable
     private val viewModel: AddScheduleViewModel by viewModels()
-    private val scheduleViewModel: ScheduleViewModel by viewModels()
+//    private val scheduleViewModel: ScheduleViewModel by viewModels()
     //    private lateinit var selectIconResultLauncher: ActivityResultLauncher<Intent>
 
     //    LifeCycle
@@ -76,7 +77,9 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             type = ScheduleTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
             progressMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
             progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
-            progressValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0)
+            progressValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0),
+//            isCompleted = false
+            // TODO: Completed 상태도 전달해야 함 
         )
 
         viewModel.setData(scheduleModel)
@@ -124,9 +127,28 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
     }
 
     //    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun scheduleSave(scheduleModel: ScheduleModel) {
-        scheduleViewModel.upsertSchedule(scheduleModel)
+//        scheduleViewModel.upsertSchedule(scheduleModel)
+//        finish()
 
+        val resultIntent = Intent().apply {
+            with(scheduleModel) {
+                putExtra(ConstKeys.SCHEDULE_ID, id)
+                putExtra(ConstKeys.SCHEDULE_DATE, date)
+                putExtra(ConstKeys.SCHEDULE_TITLE, title)
+                putExtra(ConstKeys.SCHEDULE_DEC, dec)
+                putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
+                putExtra(ConstKeys.SCHEDULE_TYPE, type)
+                putExtra(ConstKeys.SCHEDULE_MAXVALUE, progressMaxValue)
+                putExtra(ConstKeys.SCHEDULE_VALUESTEP, progressStepValue)
+                putExtra(ConstKeys.SCHEDULE_VALUE, progressValue)
+            }
+        }
+
+        TraceLog(message = "scheduleSave -> $scheduleModel")
+
+        setResult(RESULT_OK, resultIntent)
         finish()
     }
 

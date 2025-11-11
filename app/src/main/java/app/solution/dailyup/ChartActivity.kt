@@ -40,21 +40,21 @@ class ChartActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setProgressBar() {
-        calulateAchievement(LocalDate.now(), TimePeriod.DAY).let {
+        calculateAchievement(LocalDate.now(), TimePeriod.DAY).let {
             binding.apply {
                 progressbarDaily.progress = it.rate.toInt()
                 tvDaily.text = "${it.achieved} / ${it.total}"
             }
         }
 
-        calulateAchievement(LocalDate.now(), TimePeriod.WEEK).let {
+        calculateAchievement(LocalDate.now(), TimePeriod.WEEK).let {
             binding.apply {
                 progressbarWeekly.progress = it.rate.toInt()
                 tvWeekly.text = "${it.achieved} / ${it.total}"
             }
         }
 
-        calulateAchievement(LocalDate.now(), TimePeriod.MONTH).let {
+        calculateAchievement(LocalDate.now(), TimePeriod.MONTH).let {
             binding.apply {
                 progressbarMonthly.progress = it.rate.toInt()
                 tvMonthly.text = "${it.achieved} / ${it.total}"
@@ -70,7 +70,7 @@ class ChartActivity : AppCompatActivity() {
      * @return 성취율
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun calulateAchievement(day: LocalDate, timePeriod: TimePeriod): ScheduleAchievedBox {
+    private fun calculateAchievement(day: LocalDate, timePeriod: TimePeriod): ScheduleAchievedBox {
         val schedules = LocalDataManager.getSchedulesForPeriod(day, timePeriod)
         val scheduleAchieved = schedules.filter {
             it.progressValue == it.progressMaxValue || it.isCompleted

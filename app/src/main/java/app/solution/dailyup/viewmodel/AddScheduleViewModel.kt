@@ -13,6 +13,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddScheduleViewModel : ViewModel() {
     private val _uiEvent = MutableSharedFlow<AddScheduleUiEvent>(
@@ -22,7 +23,7 @@ class AddScheduleViewModel : ViewModel() {
     )
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private val _id = MutableLiveData<String>("")
+    private val _id = MutableLiveData<String>(UUID.randomUUID().toString())
     val id: LiveData<String> = _id
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -140,7 +141,7 @@ class AddScheduleViewModel : ViewModel() {
             _uiEvent.emit(
                 AddScheduleUiEvent.ScheduleSave(
                     ScheduleModel(
-                        id = _id.toString(),
+                        id = _id.value!!,
                         date = date.value!!,
                         title = title.value!!,
                         dec = dec.value!!,

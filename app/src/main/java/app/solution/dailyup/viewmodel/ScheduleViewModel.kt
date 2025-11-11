@@ -23,6 +23,10 @@ class ScheduleViewModel : ViewModel() {
     private val _scheduleModels = MutableLiveData<List<ScheduleModel>>(emptyList())
     val scheduleModels: LiveData<List<ScheduleModel>> = _scheduleModels
 
+    init {
+        TraceLog(message = "ScheduleViewModel 생성")
+    }
+
 
     fun loadSchedules(date: String = "") {
         val lodedData = LocalDataManager.getSchedules()
@@ -61,13 +65,20 @@ class ScheduleViewModel : ViewModel() {
         TraceLog(message = "Schedule 수정 -> $scheduleModel")
     }
 
+    // TEST DEBUG
+    fun checkScheduleList() {
+        TraceLog(message = "Schedule List -> ${_scheduleModels.value}")
+    }
+
     private fun addSchedule(scheduleModel: ScheduleModel) {
         _scheduleModels.value?.let { datas ->
+
             val newDatas = datas + scheduleModel
             _scheduleModels.value = newDatas
 
             LocalDataManager.saveSchedules(newDatas)
 
+            TraceLog(message = "현재 데이터 -> $datas\n전달받은 데이터-> $scheduleModel\n새로 저장할 데이터 -> $newDatas")
             TraceLog(message = "Schedule 추가 -> ${_scheduleModels.value}")
         }
     }

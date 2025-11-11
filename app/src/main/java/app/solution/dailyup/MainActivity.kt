@@ -1,7 +1,10 @@
 package app.solution.dailyup
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -15,6 +18,8 @@ import app.solution.dailyup.adapter.ScheduleAdapter
 import app.solution.dailyup.databinding.ActivityMainBinding
 import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.MainViewModel
 import app.solution.dailyup.viewmodel.ScheduleViewModel
@@ -32,6 +37,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val appNavigator = AppNavigator()
 
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+
 
     //    LifeCycle
     override fun onResume() {
@@ -43,6 +50,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun init() {
         binding.viewModel = viewModel
+
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.let {
+                    val resultData = ScheduleModel(
+                        type = ScheduleTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
+                        id = it.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
+                        title = it.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
+                        dec = it.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
+                        date = it.getStringExtra(ConstKeys.SCHEDULE_DATE).toString(),
+                        iconResId = it.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, -1).takeIf { it != -1 },
+                        progressMaxValue = it.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, -1).takeIf { it != -1 },
+                        progressStepValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, -1).takeIf { it != -1 },
+                        progressValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUE, -1).takeIf { it != -1 }
+                    )
+
+                    scheduleViewModel.upsertSchedule(resultData)
+                    scheduleViewModel.loadSchedules()
+                }
+            }
+        }
 
         setScheduleRecyclerViewAdapter()
         setCalendarRecyclerViewAdapter()
@@ -92,7 +120,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEvents.collectLatest { event ->
-                    appNavigator.navigate(this@MainActivity, event)
+                    appNavigator.navigate(this@MainActivity, event, activityResultLauncher)
                 }
             }
         }
