@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import app.solution.dailyup.event.NavigationEvent
 import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.view.AddScheduleActivity
+import app.solution.dailyup.view.SettingsActivity
 
 class AppNavigator {
     fun navigate(
@@ -23,10 +25,13 @@ class AppNavigator {
 
             is NavigationEvent.MoveToAddScheduleActivity -> {
                 if (event.scheduleModel == null) {
-                    activityLauncher?.launch(Intent(activity, AddScheduleActivity::class.java))
+                    val intent = Intent(activity, AddScheduleActivity::class.java).apply {
+                        putExtra(ConstKeys.SCHEDULE_DATE, event.selectedDate.toString())
+                    }
+                    activityLauncher?.launch(intent)
                 } else {
                     val intent = Intent(activity, AddScheduleActivity::class.java).apply {
-                        event.scheduleModel?.let {
+                        event.scheduleModel.let {
                             putExtra(ConstKeys.SCHEDULE_ID, event.scheduleModel.id)
                             putExtra(ConstKeys.SCHEDULE_TITLE, event.scheduleModel.title)
                             putExtra(ConstKeys.SCHEDULE_DATE, event.scheduleModel.date)

@@ -1,4 +1,4 @@
-package app.solution.dailyup
+package app.solution.dailyup.view
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -13,6 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import app.solution.dailyup.AppNavigator
+import app.solution.dailyup.BaseActivity
+import app.solution.dailyup.R
 import app.solution.dailyup.adapter.CalendarAdapter
 import app.solution.dailyup.adapter.ScheduleAdapter
 import app.solution.dailyup.databinding.ActivityMainBinding
@@ -104,6 +107,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private fun observeViewModel() {
         viewModel.currentCalendar.observe(this) { date ->
             calendarAdapter.updateDates(date)
+
+            scheduleViewModel.loadSchedules(date.toString())
+            // TODO: 날짜가 바뀔 때마다 로드를 하는 게 아닌 로드로 모든 데이터를 가져온 뒤 필터링으로 표시하는 방식으로 개선 필요 
+        }
+
+        viewModel.currentDate.observe(this) { date ->
+            calendarAdapter.updateDates(date)
+
+            scheduleViewModel.loadSchedules(date.toString())
         }
 
         viewModel.scheduleModel.observe(this) { scheduleModel ->
@@ -191,7 +203,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         calendarAdapter = CalendarAdapter(
             onDateClickEvent = { currentDate ->
-                scheduleViewModel.loadSchedules(currentDate.toString())
+                viewModel.onDateSelected(currentDate)
             },
             onUpdateDateEvent = { updateDate ->
                 binding.tvYearAndMonth.text = "${updateDate.year}년 ${updateDate.monthValue}월"

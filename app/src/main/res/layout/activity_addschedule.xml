@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
-        tools:context=".AddScheduleActivity">
+        tools:context=".view.AddScheduleActivity">
 
         <TextView
             android:id="@+id/tv_activity_name"

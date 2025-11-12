@@ -1,4 +1,4 @@
-package app.solution.dailyup
+package app.solution.dailyup.view
 
 import android.content.Intent
 import android.os.Build
@@ -7,6 +7,9 @@ import android.text.TextWatcher
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
+import app.solution.dailyup.BaseActivity
+import app.solution.dailyup.R
+import app.solution.dailyup.ScheduleIconSelectorBottomSheet
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel

@@ -32,6 +32,12 @@ class MainViewModel : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.O)
     private var currentWeek: LocalDate = LocalDate.now()
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val _currentDate = MutableLiveData<LocalDate>(LocalDate.now())
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    val currentDate: LiveData<LocalDate> = _currentDate
+
     private val _uiEvent = MutableSharedFlow<MainUiEvent>(
         replay = 0,
         extraBufferCapacity = 10,
@@ -110,12 +116,25 @@ class MainViewModel : ViewModel() {
     }
 
     /**
+     * On date selected
+     * 주간 달력 내 날짜 선택
+     * @param selectedDate 선택된 날짜
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun onDateSelected(selectedDate: LocalDate) {
+        _currentDate.value = selectedDate
+
+        TraceLog(message = "onDateSelected -> ${_currentDate.value}")
+    }
+
+    /**
      * On move add schedule click
      * 일정 추가 화면으로 이동
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onMoveAddScheduleClick() {
         viewModelScope.launch {
-            _navigationEvents.emit(NavigationEvent.MoveToAddScheduleActivity(null))
+            _navigationEvents.emit(NavigationEvent.MoveToAddScheduleActivity(null, _currentDate.value))
         }
     }
 
