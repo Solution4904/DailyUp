@@ -70,7 +70,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     )
 
                     scheduleViewModel.upsertSchedule(resultData)
-                    scheduleViewModel.loadSchedules()
+                    //scheduleViewModel.loadSchedules()
                 }
             }
         }
@@ -109,7 +109,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             calendarAdapter.updateDates(date)
 
             scheduleViewModel.loadSchedules(date.toString())
-            // TODO: 날짜가 바뀔 때마다 로드를 하는 게 아닌 로드로 모든 데이터를 가져온 뒤 필터링으로 표시하는 방식으로 개선 필요 
         }
 
         viewModel.currentDate.observe(this) { date ->
@@ -118,9 +117,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             scheduleViewModel.loadSchedules(date.toString())
         }
 
-        viewModel.scheduleModel.observe(this) { scheduleModel ->
+        /*viewModel.scheduleModel.observe(this) { scheduleModel ->
             scheduleViewModel.upsertSchedule(scheduleModel)
-        }
+        }*/
     }
 
     /**
