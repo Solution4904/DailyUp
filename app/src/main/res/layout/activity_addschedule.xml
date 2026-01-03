@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="app.solution.dailyup.viewmodel.ScheduleViewModel" />
+            type="app.solution.dailyup.viewmodel.AddScheduleViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
-        tools:context=".AddScheduleActivity">
+        tools:context=".view.AddScheduleActivity">
 
         <TextView
             android:id="@+id/tv_activity_name"
@@ -69,8 +69,9 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:inputType="none"
-                    android:textAlignment="center"
+                    android:onClick="@{()->viewModel.onDateClicked()}"
                     android:text="@{viewModel.date}"
+                    android:textAlignment="center"
                     tools:text="2000년 00월 00일" />
             </LinearLayout>
 
@@ -98,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:hint="title"
-                    android:text="@{viewModel.title}"
+                    android:text="@={viewModel.title}"
                     android:textAlignment="viewEnd" />
             </LinearLayout>
 
@@ -126,7 +127,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:hint="dec"
-                    android:text="@{viewModel.dec}"
+                    android:text="@={viewModel.dec}"
                     android:textAlignment="viewEnd" />
             </LinearLayout>
 
@@ -152,10 +153,11 @@
                     android:id="@+id/ibtn_icon"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_weight="2"
                     android:background="@null"
                     android:contentDescription="@null"
-                    android:layout_gravity="center"
+                    android:onClick="@{()->viewModel.onIconClicked()}"
                     android:scaleType="fitCenter"
                     android:visibility="@{viewModel.type == ScheduleTypeEnum.NORMAL ? View.VISIBLE : View.GONE}"
                     app:scheduleIcon="@{viewModel.iconResId}"
@@ -186,6 +188,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:background="@android:color/transparent"
+                    android:onClick="@{()->viewModel.onTypeClicked()}"
                     android:text="@{viewModel.type.displayName}"
                     android:textAlignment="center"
                     android:textColor="@color/black"
@@ -218,12 +221,12 @@
                         android:textSize="18sp" />
 
                     <EditText
-                        android:id="@+id/et_counting_max"
+                        android:id="@+id/et_progress_max_value"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
                         android:hint="100"
-                        android:text="@{String.valueOf(viewModel.processMaxValue)}"
+                        android:text="@{viewModel.progressMaxValue.toString()}"
                         android:textAlignment="viewEnd" />
                 </LinearLayout>
 
@@ -243,12 +246,12 @@
                         android:textSize="18sp" />
 
                     <EditText
-                        android:id="@+id/et_counting_value_step"
+                        android:id="@+id/et_progress_step_value"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
                         android:hint="20"
-                        android:text="@{String.valueOf(viewModel.processValueStep)}"
+                        android:text="@{viewModel.progressStepValue.toString()}"
                         android:textAlignment="viewEnd" />
                 </LinearLayout>
 
@@ -280,6 +283,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
+                    android:onClick="@{()->viewModel.onCancelClicked()}"
                     android:text="Cancel" />
 
                 <Button
@@ -288,6 +292,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
+                    android:onClick="@{()->viewModel.onConfirmClicked()}"
                     android:text="Confirm" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

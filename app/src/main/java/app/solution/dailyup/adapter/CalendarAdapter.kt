@@ -75,10 +75,19 @@ class CalendarAdapter(
 
     override fun getItemCount() = weekDates.size
 
+//    @SuppressLint("NotifyDataSetChanged")
+//    fun updateDates(newWeek: Int) {
+//        weekDate = weekDate.plusWeeks(newWeek.toLong())
+//        weekDates = CalendarUtil().getWeeklyDates(weekDate)
+//
+//        onUpdateDateEvent(weekDate)
+//
+//        notifyDataSetChanged()
+//    }
+
     @SuppressLint("NotifyDataSetChanged")
-    fun updateDates(newWeek: Int) {
-        weekDate = weekDate.plusWeeks(newWeek.toLong())
-        weekDates = CalendarUtil().getWeeklyDates(weekDate)
+    fun updateDates(date: LocalDate) {
+        weekDates = CalendarUtil().getWeeklyDates(date)
 
         onUpdateDateEvent(weekDate)
 

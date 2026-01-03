@@ -22,7 +22,7 @@ object BindingAdapters {
     @JvmStatic
     @BindingAdapter("scheduleUpdate")
     fun scheduleUpdate(view: ImageButton, scheduleModel: ScheduleModel) {
-        val iconResId = if (scheduleModel.isCompleted || scheduleModel.processMaxValue == scheduleModel.processValue) {
+        val iconResId = if (scheduleModel.isCompleted || scheduleModel.progressMaxValue == scheduleModel.progressValue) {
             R.drawable.ic_check
         } else {
             scheduleModel.iconResId
