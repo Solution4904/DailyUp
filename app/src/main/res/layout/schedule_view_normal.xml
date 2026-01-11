@@ -12,9 +12,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_root"
-        android:background="#E4BADA"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:background="#E4BADA">
 
         <View
             android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@{scheduleModel.title}"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:text="TITLE"
                 tools:textColor="#ff00ff" />
@@ -67,7 +67,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@{scheduleModel.dec}"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:text="DEC"
                 tools:textColor="#4A5FFF" />
