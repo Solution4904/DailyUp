@@ -24,7 +24,28 @@ class AppNavigator {
             }
 
             is NavigationEvent.MoveToAddScheduleActivity -> {
-                if (event.scheduleModel == null) {
+                val intent = Intent(activity, AddScheduleActivity::class.java)
+
+                if (event.scheduleModel != null) {
+                    intent.apply {
+                        putExtra(ConstKeys.SCHEDULE_ID, event.scheduleModel.id)
+                        putExtra(ConstKeys.SCHEDULE_TITLE, event.scheduleModel.title)
+                        putExtra(ConstKeys.SCHEDULE_DATE, event.scheduleModel.date)
+                        putExtra(ConstKeys.SCHEDULE_DEC, event.scheduleModel.dec)
+                        putExtra(ConstKeys.SCHEDULE_ICONNAME, event.scheduleModel.iconResId)
+                        putExtra(ConstKeys.SCHEDULE_TYPE, event.scheduleModel.type.name)
+                        putExtra(ConstKeys.SCHEDULE_MAXVALUE, event.scheduleModel.progressMaxValue)
+                        putExtra(ConstKeys.SCHEDULE_VALUESTEP, event.scheduleModel.progressStepValue)
+                        putExtra(ConstKeys.SCHEDULE_VALUE, event.scheduleModel.progressValue)
+                    }
+                } else {
+                    intent.apply {
+                        putExtra(ConstKeys.SCHEDULE_DATE, event.selectedDate.toString())
+                    }
+                }
+                activityLauncher?.launch(intent)
+
+                /*if (event.scheduleModel == null) {
                     val intent = Intent(activity, AddScheduleActivity::class.java).apply {
                         putExtra(ConstKeys.SCHEDULE_DATE, event.selectedDate.toString())
                     }
@@ -44,7 +65,7 @@ class AppNavigator {
                         }
                     }
                     activity.startActivity(intent)
-                }
+                }*/
             }
         }
     }

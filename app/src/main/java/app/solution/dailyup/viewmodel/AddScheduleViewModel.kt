@@ -137,21 +137,20 @@ class AddScheduleViewModel : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun onConfirmClicked() {
+        val data = ScheduleModel(
+            id = _id.value!!,
+            date = date.value!!,
+            title = title.value!!,
+            dec = dec.value!!,
+            iconResId = iconResId.value,
+            type = type.value!!,
+            progressMaxValue = progressMaxValue.value!!,
+            progressStepValue = progressStepValue.value!!,
+            progressValue = progressValue.value!!,
+        )
         viewModelScope.launch {
             _uiEvent.emit(
-                AddScheduleUiEvent.ScheduleSave(
-                    ScheduleModel(
-                        id = _id.value!!,
-                        date = date.value!!,
-                        title = title.value!!,
-                        dec = dec.value!!,
-                        iconResId = iconResId.value,
-                        type = type.value!!,
-                        progressMaxValue = progressMaxValue.value!!,
-                        progressStepValue = progressStepValue.value!!,
-                        progressValue = progressValue.value!!,
-                    )
-                )
+                AddScheduleUiEvent.ScheduleSave(data)
             )
         }
     }

@@ -44,12 +44,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
 
     //    LifeCycle
-    override fun onResume() {
-        super.onResume()
-
-        // TODO: 각 리스트 최신화
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun init() {
         binding.viewModel = viewModel
@@ -71,6 +65,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
                     scheduleViewModel.upsertSchedule(resultData)
                     //scheduleViewModel.loadSchedules()
+
+                    viewModel.onDateSelected(LocalDate.parse(resultData.date))
+                    TraceLog(message = "registerForActivityResult -> $resultData")
                 }
             }
         }

@@ -59,22 +59,24 @@ class ScheduleViewModel : ViewModel() {
     }
 
     fun upsertSchedule(scheduleModel: ScheduleModel) {
-
         val index = scheduleDatas.indexOfFirst { it.id == scheduleModel.id }
 
+        // 수정
         if (index != -1) {
             scheduleDatas[index] = scheduleModel
 
             TraceLog(message = "Schedule 수정 -> $scheduleModel")
-        } else {
+        }
+        // 추가
+        else {
             scheduleDatas.add(scheduleModel)
 
             TraceLog(message = "Schedule 추가 -> $scheduleModel")
         }
         saveSchedules()
 
-        val currentDate = _scheduleModels.value?.firstOrNull { it.date.isNotEmpty() }?.date ?: ""
-        loadSchedules(currentDate)
+//        val currentDate = _scheduleModels.value?.firstOrNull { it.date.isNotEmpty() }?.date ?: ""
+        loadSchedules(scheduleModel.date)
 
         /*val resultScheduleModel = _scheduleModels.value?.find { it.id == scheduleModel.id }
 

@@ -95,7 +95,8 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun afterTextChanged(p0: Editable?) {
-                viewModel.setProgressMaxValue(p0.toString())
+                val value = p0.toString().toIntOrNull() ?: 0
+                viewModel.setProgressMaxValue(value.toString())
             }
         })
 
@@ -105,7 +106,8 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun afterTextChanged(p0: Editable?) {
-                viewModel.setProgressStepValue(p0.toString())
+                val value = p0.toString().toIntOrNull() ?: 0
+                viewModel.setProgressStepValue(value.toString())
             }
         })
     }
@@ -142,7 +144,7 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
                 putExtra(ConstKeys.SCHEDULE_TITLE, title)
                 putExtra(ConstKeys.SCHEDULE_DEC, dec)
                 putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
-                putExtra(ConstKeys.SCHEDULE_TYPE, type)
+                putExtra(ConstKeys.SCHEDULE_TYPE, type.name)
                 putExtra(ConstKeys.SCHEDULE_MAXVALUE, progressMaxValue)
                 putExtra(ConstKeys.SCHEDULE_VALUESTEP, progressStepValue)
                 putExtra(ConstKeys.SCHEDULE_VALUE, progressValue)
