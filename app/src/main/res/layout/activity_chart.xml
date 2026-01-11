@@ -27,33 +27,38 @@
                 <LinearLayout
                     android:id="@+id/layout_daily"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#ff00ff"
-                    android:orientation="horizontal">
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    tools:background="#ff00ff">
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:gravity="center"
                         android:text="일간 성취율"
+                        android:textColor="@color/black"
                         android:textSize="14sp" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7">
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:padding="6dp">
 
                         <ProgressBar
                             android:id="@+id/progressbar_daily"
                             style="@android:style/Widget.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:progressBackgroundTint="@color/gray"
+                            android:progressTint="@color/black"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            android:max="100"
                             tools:progress="50" />
 
                         <TextView
@@ -61,6 +66,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:textColor="@color/white"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -72,34 +78,38 @@
                 <LinearLayout
                     android:id="@+id/layout_weekly"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#0B88D5"
-                    android:orientation="horizontal">
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    tools:background="#0B88D5">
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:gravity="center"
                         android:text="주간 성취율"
+                        android:textColor="@color/black"
                         android:textSize="14sp" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7">
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:padding="6dp">
 
                         <ProgressBar
                             android:id="@+id/progressbar_weekly"
                             style="@android:style/Widget.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:progressBackgroundTint="@color/gray"
+                            android:progressTint="@color/black"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            android:max="100"
                             tools:progress="30" />
 
                         <TextView
@@ -107,6 +117,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:textColor="@color/white"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -118,34 +129,38 @@
                 <LinearLayout
                     android:id="@+id/layout_monthly"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#2CB614"
-                    android:orientation="horizontal">
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    tools:background="#2CB614">
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:gravity="center"
                         android:text="월간 성취율"
+                        android:textColor="@color/black"
                         android:textSize="14sp" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7">
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:padding="6dp">
 
                         <ProgressBar
                             android:id="@+id/progressbar_monthly"
                             style="@android:style/Widget.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:progressBackgroundTint="@color/gray"
+                            android:progressTint="@color/black"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            android:max="100"
                             tools:progress="20" />
 
                         <TextView
@@ -153,6 +168,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:textColor="@color/white"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"

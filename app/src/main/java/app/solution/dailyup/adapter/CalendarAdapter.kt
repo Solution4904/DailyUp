@@ -40,9 +40,13 @@ class CalendarAdapter(
                 val checkDate = weekDates.find { it == selectedDate }
                 if (checkDate != null) {
                     if (position == selectedPosition) {
-                        layoutRoot.setBackgroundColor(Color.BLUE)
+                        layoutRoot.setBackgroundColor(Color.BLACK)
+                        tvWeek.setTextColor(Color.WHITE)
+                        tvDay.setTextColor(Color.WHITE)
                     } else {
                         layoutRoot.setBackgroundColor(Color.TRANSPARENT)
+                        tvWeek.setTextColor(Color.BLACK)
+                        tvDay.setTextColor(Color.BLACK)
                     }
                 } else {
                     layoutRoot.setBackgroundColor(Color.TRANSPARENT)

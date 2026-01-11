@@ -6,4 +6,5 @@
     </style>
 
     <style name="Theme.DailyUp" parent="Base.Theme.DailyUp" />
+
 </resources>

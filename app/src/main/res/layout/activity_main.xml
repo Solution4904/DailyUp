@@ -15,19 +15,19 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/design_default_color_primary"
+        tools:background="@color/design_default_color_primary"
         tools:context=".view.MainActivity">
 
         <LinearLayout
             android:id="@+id/layout_actionbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:background="#FDFD93"
             android:orientation="horizontal"
             android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="#FDFD93">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -80,10 +80,11 @@
                 android:id="@+id/tv_yearAndMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="2000년 0월" />
+                tools:text="2000년 0월"
+                tools:textColor="@color/white" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,12 +126,11 @@
             android:id="@+id/layout_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="#FF9CCD"
-            android:padding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_calendar" />
+            app:layout_constraintTop_toBottomOf="@+id/layout_calendar"
+            tools:background="#FF9CCD" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_add"
@@ -139,22 +139,12 @@
             android:layout_margin="16dp"
             android:onClick="@{()->viewModel.onMoveAddScheduleClick()}"
             android:src="@drawable/ic_add_circle"
+            app:backgroundTint="@color/black"
             app:fabCustomSize="36dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:maxImageSize="48dp"
-            tools:ignore="contentDescription" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btn_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_launcher_foreground"
-            app:fabCustomSize="36dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:maxImageSize="48dp"
+            app:tint="@color/white"
             tools:ignore="contentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
