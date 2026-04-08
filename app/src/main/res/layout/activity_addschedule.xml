@@ -15,289 +15,286 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="16dp"
-        tools:context=".view.AddScheduleActivity">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/tv_activity_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center"
             android:text="일정 등록"
-            android:textAlignment="center"
             android:textSize="26sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="#fff000" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:id="@+id/layout_bottom_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.1"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/black"
+                android:onClick="@{()->viewModel.onCancelClicked()}"
+                android:text="취소" />
+
+            <Button
+                android:id="@+id/btn_confirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/black"
+                android:onClick="@{()->viewModel.onConfirmClicked()}"
+                android:text="확인" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toTopOf="@+id/layout_bottom_buttons"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/tv_activity_name">
 
             <LinearLayout
-                android:id="@+id/layout_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/tv_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="날짜"
-                    android:textAlignment="center"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/et_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:clickable="false"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:inputType="none"
-                    android:onClick="@{()->viewModel.onDateClicked()}"
-                    android:text="@{viewModel.date}"
-                    android:textAlignment="center"
-                    tools:text="2000년 00월 00일" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layout_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_date">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="일정 이름"
-                    android:textAlignment="center"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/et_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:hint="title"
-                    android:text="@={viewModel.title}"
-                    android:textAlignment="viewEnd" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layout_dec"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_title">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="설명"
-                    android:textAlignment="center"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/et_dec"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:hint="dec"
-                    android:text="@={viewModel.dec}"
-                    android:textAlignment="viewEnd" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layout_icon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="horizontal"
-                android:visibility="@{viewModel.type == ScheduleTypeEnum.NORMAL ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_dec">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="아이콘"
-                    android:textAlignment="center"
-                    android:textSize="18sp" />
-
-                <ImageButton
-                    android:id="@+id/ibtn_icon"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="2"
-                    android:background="@null"
-                    android:contentDescription="@null"
-                    android:onClick="@{()->viewModel.onIconClicked()}"
-                    android:scaleType="fitCenter"
-                    app:scheduleIcon="@{viewModel.iconResId}"
-                    tools:src="@drawable/ic_schedule_default" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layout_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_icon">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="형식"
-                    android:textAlignment="center"
-                    android:textSize="18sp" />
-
-                <Button
-                    android:id="@+id/btn_type"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:background="@android:color/transparent"
-                    android:onClick="@{()->viewModel.onTypeClicked()}"
-                    android:text="@{viewModel.type.displayName}"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    tools:text="체크 방식" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layout_counting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
                 android:orientation="vertical"
-                android:visibility="@{viewModel.type == ScheduleTypeEnum.NORMAL ? View.GONE : View.VISIBLE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_type">
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="16dp">
 
                 <LinearLayout
-                    android:id="@+id/layout_counting_max"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="총량"
-                        android:textAlignment="center"
-                        android:textSize="18sp" />
-
-                    <EditText
-                        android:id="@+id/et_progress_max_value"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:hint="100"
-                        android:text="@{viewModel.progressMaxValue.toString()}"
-                        android:textAlignment="viewEnd" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_counting_value"
+                    android:id="@+id/layout_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="8dp"
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/tv_date"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="단위"
+                        android:text="날짜"
                         android:textAlignment="center"
                         android:textSize="18sp" />
 
                     <EditText
-                        android:id="@+id/et_progress_step_value"
+                        android:id="@+id/et_date"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
-                        android:hint="20"
-                        android:text="@{viewModel.progressStepValue.toString()}"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none"
+                        android:onClick="@{()->viewModel.onDateClicked()}"
+                        android:text="@{viewModel.date}"
+                        android:textAlignment="center"
+                        tools:text="2000년 00월 00일" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layout_date">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="일정 이름"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/et_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:hint="title"
+                        android:text="@={viewModel.title}"
                         android:textAlignment="viewEnd" />
                 </LinearLayout>
 
-            </LinearLayout>
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <Button
-                    android:id="@+id/btn_cancel"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:id="@+id/layout_dec"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/black"
-                    android:onClick="@{()->viewModel.onCancelClicked()}"
-                    android:text="Cancel" />
+                    android:layout_marginVertical="8dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layout_title">
 
-                <Button
-                    android:id="@+id/btn_confirm"
-                    android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="설명"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/et_dec"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:hint="dec"
+                        android:text="@={viewModel.dec}"
+                        android:textAlignment="viewEnd" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_icon"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/black"
-                    android:onClick="@{()->viewModel.onConfirmClicked()}"
-                    android:text="Confirm" />
+                    android:layout_marginVertical="8dp"
+                    android:orientation="horizontal"
+                    android:visibility="@{viewModel.type == ScheduleTypeEnum.NORMAL ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layout_dec">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="아이콘"
+                        android:textAlignment="center"
+                        android:layout_gravity="center"
+                        android:textSize="18sp" />
+
+                    <ImageButton
+                        android:id="@+id/ibtn_icon"
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="2"
+                        android:background="@null"
+                        android:contentDescription="@null"
+                        android:onClick="@{()->viewModel.onIconClicked()}"
+                        android:scaleType="fitCenter"
+                        app:scheduleIcon="@{viewModel.iconResId}"
+                        tools:src="@drawable/ic_schedule_default" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layout_icon">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="형식"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <Button
+                        android:id="@+id/btn_type"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:background="@android:color/transparent"
+                        android:onClick="@{()->viewModel.onTypeClicked()}"
+                        android:text="@{viewModel.type.displayName}"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        tools:text="체크 방식" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_counting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:orientation="vertical"
+                    android:visibility="@{viewModel.type == ScheduleTypeEnum.NORMAL ? View.GONE : View.VISIBLE}">
+
+                    <LinearLayout
+                        android:id="@+id/layout_counting_max"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="총량"
+                            android:textAlignment="center"
+                            android:textSize="18sp" />
+
+                        <EditText
+                            android:id="@+id/et_progress_max_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:hint="100"
+                            android:text="@{viewModel.progressMaxValue.toString()}"
+                            android:textAlignment="viewEnd" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_counting_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="단위"
+                            android:textAlignment="center"
+                            android:textSize="18sp" />
+
+                        <EditText
+                            android:id="@+id/et_progress_step_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:hint="20"
+                            android:text="@{viewModel.progressStepValue.toString()}"
+                            android:textAlignment="viewEnd" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
             </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

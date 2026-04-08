@@ -1,8 +1,8 @@
 package app.solution.dailyup.utility
 
 enum class ScheduleTypeEnum(val displayName: String) {
-    NORMAL("체크 방식"),
-    COUNTING("할당 방식");
+    NORMAL("단발성 목표"),
+    COUNTING("누적형 목표");
 
     companion object {
         fun convertToType(value: String): ScheduleTypeEnum = when (value) {
