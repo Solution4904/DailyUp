@@ -14,6 +14,7 @@ import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.AddScheduleViewModel
@@ -78,17 +79,29 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             dec = (intent.getStringExtra(ConstKeys.SCHEDULE_DEC) ?: "").toString(),
             iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
             type = ScheduleTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
+            repeat = RepeatTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_REPEAT).toString()),
             progressMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
             progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
             progressValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0),
+            hour = intent.getIntExtra(ConstKeys.SCHEDULE_HOUR, 0),
+            minute = intent.getIntExtra(ConstKeys.SCHEDULE_MINUTE, 0),
+
 //            isCompleted = false
-            // TODO: Completed 상태도 전달해야 함 
+            // TODO: Completed 상태도 전달해야 함
         )
 
         viewModel.setData(scheduleModel)
+
+//        binding.npHour.value = scheduleModel.hour
+//        binding.npMinute.value = scheduleModel.minute
     }
 
     private fun supportTwoWayBinding() {
+        binding.npHour.minValue = 0
+        binding.npHour.maxValue = 23
+        binding.npMinute.minValue = 0
+        binding.npMinute.maxValue = 59
+
         binding.etProgressMaxValue.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
@@ -110,6 +123,29 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
                 viewModel.setProgressStepValue(value.toString())
             }
         })
+
+        binding.npHour.setOnValueChangedListener { _, _, newVal ->
+            viewModel.hour.value = newVal
+        }
+
+        binding.npMinute.setOnValueChangedListener { _, _, newVal ->
+            viewModel.minute.value = newVal
+        }
+
+        val repeatRadioButtonMap = mapOf(
+            RepeatTypeEnum.ONCE to binding.rbRepeatOnce,
+            RepeatTypeEnum.WEEKLY to binding.rbRepeatWeekly,
+            RepeatTypeEnum.MONTHLY to binding.rbRepeatMonthly,
+        )
+        repeatRadioButtonMap[viewModel.repeat.value]?.isChecked = true
+
+        binding.rgRepeat.setOnCheckedChangeListener { _, checkedId ->
+            viewModel.repeat.value = when (checkedId) {
+                R.id.rb_repeat_weekly -> RepeatTypeEnum.WEEKLY
+                R.id.rb_repeat_monthly -> RepeatTypeEnum.MONTHLY
+                else -> RepeatTypeEnum.ONCE
+            }
+        }
     }
 
     /**
@@ -145,9 +181,12 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
                 putExtra(ConstKeys.SCHEDULE_DEC, dec)
                 putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
                 putExtra(ConstKeys.SCHEDULE_TYPE, type.name)
+                putExtra(ConstKeys.SCHEDULE_REPEAT, repeat.name)
                 putExtra(ConstKeys.SCHEDULE_MAXVALUE, progressMaxValue)
                 putExtra(ConstKeys.SCHEDULE_VALUESTEP, progressStepValue)
                 putExtra(ConstKeys.SCHEDULE_VALUE, progressValue)
+                putExtra(ConstKeys.SCHEDULE_HOUR, hour)
+                putExtra(ConstKeys.SCHEDULE_MINUTE, minute)
             }
         }
 

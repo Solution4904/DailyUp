@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,6 +33,9 @@ class AddScheduleViewModel : ViewModel() {
     val dec = MutableLiveData<String>("")
     val iconResId = MutableLiveData<Int?>(0)
     val type = MutableLiveData<ScheduleTypeEnum>(ScheduleTypeEnum.NORMAL)
+    val repeat = MutableLiveData<RepeatTypeEnum>(RepeatTypeEnum.ONCE)
+    val hour = MutableLiveData<Int>(0)
+    val minute = MutableLiveData<Int>(0)
 
     private val _progressMaxValue = MutableLiveData<Int?>(1)
     val progressMaxValue: LiveData<Int?> = _progressMaxValue
@@ -43,6 +47,7 @@ class AddScheduleViewModel : ViewModel() {
     val progressValue = _progressValue
 
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setData(param: ScheduleModel) {
         _id.value = param.id
@@ -51,6 +56,9 @@ class AddScheduleViewModel : ViewModel() {
         dec.value = param.dec
         iconResId.value = param.iconResId
         type.value = param.type
+        repeat.value = param.repeat
+        hour.value = param.hour
+        minute.value = param.minute
         _progressMaxValue.value = param.progressMaxValue
         _progressStepValue.value = param.progressStepValue
         _progressValue.value = param.progressValue
@@ -144,9 +152,12 @@ class AddScheduleViewModel : ViewModel() {
             dec = dec.value!!,
             iconResId = iconResId.value,
             type = type.value!!,
+            repeat = repeat.value!!,
             progressMaxValue = progressMaxValue.value!!,
             progressStepValue = progressStepValue.value!!,
             progressValue = progressValue.value!!,
+            hour = hour.value!!,
+            minute = minute.value!!,
         )
         viewModelScope.launch {
             _uiEvent.emit(
