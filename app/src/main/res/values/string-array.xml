@@ -20,7 +20,7 @@
     </string-array>
 
     <string-array name="schedule_type_array">
-        <item>체크 방식</item>
-        <item>할당 방식</item>
+        <item>단발성 목표</item>
+        <item>누적형 목표</item>
     </string-array>
 </resources>

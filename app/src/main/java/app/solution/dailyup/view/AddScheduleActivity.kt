@@ -232,7 +232,7 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         val scheduleTypes = resources.getStringArray(R.array.schedule_type_array)
 
         MaterialAlertDialogBuilder(this@AddScheduleActivity)
-            .setTitle("완료 방식")
+            .setTitle("선택")
             .setItems(scheduleTypes) { dialog, which ->
                 viewModel.setType(ScheduleTypeEnum.convertToType(which))
             }.show()
