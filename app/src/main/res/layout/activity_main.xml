@@ -12,11 +12,8 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:background="@color/design_default_color_primary"
-        tools:context=".view.MainActivity">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/layout_actionbar"
@@ -66,86 +63,102 @@
                 tools:ignore="contentDescription" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layout_calendar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_actionbar">
-
-            <TextView
-                android:id="@+id/tv_yearAndMonth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="2000년 0월"
-                tools:textColor="@color/white" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/btn_move_previous"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackground"
-                    android:onClick="@{()->viewModel.onMoveToAnotherWeek(-1)}"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_double_arrow_left"
-                    tools:ignore="contentDescription" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/view_calendar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="8" />
-
-                <ImageButton
-                    android:id="@+id/btn_move_next"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackground"
-                    android:onClick="@{()->viewModel.onMoveToAnotherWeek(+1)}"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_double_arrow_right"
-                    tools:ignore="contentDescription" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/layout_recyclerview"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_calendar"
-            tools:background="#FF9CCD" />
+            app:layout_constraintTop_toBottomOf="@+id/layout_actionbar"
+            tools:background="@color/design_default_color_primary"
+            tools:context=".view.MainActivity">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btn_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:onClick="@{()->viewModel.onMoveAddScheduleClick()}"
-            android:src="@drawable/ic_add_circle"
-            app:backgroundTint="@color/black"
-            app:fabCustomSize="36dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:maxImageSize="48dp"
-            app:tint="@color/white"
-            tools:ignore="contentDescription" />
+
+            <LinearLayout
+                android:id="@+id/layout_calendar"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/layout_recyclerview"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.15"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_yearAndMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:text="2000년 0월"
+                    tools:textColor="@color/white" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btn_move_previous"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?selectableItemBackground"
+                        android:onClick="@{()->viewModel.onMoveToAnotherWeek(-1)}"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_double_arrow_left"
+                        tools:ignore="contentDescription" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/view_calendar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="8" />
+
+                    <ImageButton
+                        android:id="@+id/btn_move_next"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?selectableItemBackground"
+                        android:onClick="@{()->viewModel.onMoveToAnotherWeek(+1)}"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_double_arrow_right"
+                        tools:ignore="contentDescription" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/layout_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layout_calendar"
+                tools:background="#FF9CCD" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:onClick="@{()->viewModel.onMoveAddScheduleClick()}"
+                android:src="@drawable/ic_add_circle"
+                app:backgroundTint="@color/black"
+                app:fabCustomSize="36dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:maxImageSize="48dp"
+                app:tint="@color/white"
+                tools:ignore="contentDescription" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
