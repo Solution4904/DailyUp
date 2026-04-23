@@ -37,6 +37,8 @@ class AppNavigator {
                         putExtra(ConstKeys.SCHEDULE_MAXVALUE, event.scheduleModel.progressMaxValue)
                         putExtra(ConstKeys.SCHEDULE_VALUESTEP, event.scheduleModel.progressStepValue)
                         putExtra(ConstKeys.SCHEDULE_VALUE, event.scheduleModel.progressValue)
+                        putExtra(ConstKeys.SCHEDULE_HOUR, event.scheduleModel.hour)
+                        putExtra(ConstKeys.SCHEDULE_MINUTE, event.scheduleModel.minute)
                     }
                 } else {
                     intent.apply {

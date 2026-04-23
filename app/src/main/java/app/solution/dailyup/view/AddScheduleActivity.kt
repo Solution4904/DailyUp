@@ -23,6 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
@@ -83,8 +84,8 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             progressMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
             progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
             progressValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0),
-            hour = intent.getIntExtra(ConstKeys.SCHEDULE_HOUR, 0),
-            minute = intent.getIntExtra(ConstKeys.SCHEDULE_MINUTE, 0),
+            hour = intent.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
+            minute = intent.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
 
 //            isCompleted = false
             // TODO: Completed 상태도 전달해야 함
@@ -101,6 +102,9 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         binding.npHour.maxValue = 23
         binding.npMinute.minValue = 0
         binding.npMinute.maxValue = 59
+
+        binding.npHour.value = viewModel.hour.value ?: LocalTime.now().hour
+        binding.npMinute.value = viewModel.minute.value ?: LocalTime.now().minute
 
         binding.etProgressMaxValue.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}

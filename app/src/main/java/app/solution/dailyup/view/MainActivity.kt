@@ -22,6 +22,7 @@ import app.solution.dailyup.databinding.ActivityMainBinding
 import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.MainViewModel
@@ -29,6 +30,7 @@ import app.solution.dailyup.viewmodel.ScheduleViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     //    Variable
@@ -60,7 +62,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         iconResId = it.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, -1).takeIf { it != -1 },
                         progressMaxValue = it.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, -1).takeIf { it != -1 },
                         progressStepValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, -1).takeIf { it != -1 },
-                        progressValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUE, -1).takeIf { it != -1 }
+                        progressValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUE, -1).takeIf { it != -1 },
+                        hour = it.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
+                        minute = it.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
+                        repeat = RepeatTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_REPEAT).toString()),
                     )
 
                     scheduleViewModel.upsertSchedule(resultData)
