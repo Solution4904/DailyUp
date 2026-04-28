@@ -39,6 +39,7 @@ class AppNavigator {
                         putExtra(ConstKeys.SCHEDULE_VALUE, event.scheduleModel.progressValue)
                         putExtra(ConstKeys.SCHEDULE_HOUR, event.scheduleModel.hour)
                         putExtra(ConstKeys.SCHEDULE_MINUTE, event.scheduleModel.minute)
+                        putExtra(ConstKeys.SCHEDULE_REPEAT, event.scheduleModel.repeat.name)
                     }
                 } else {
                     intent.apply {

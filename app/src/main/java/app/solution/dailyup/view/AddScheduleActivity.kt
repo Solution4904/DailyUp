@@ -136,15 +136,15 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             viewModel.minute.value = newVal
         }
 
-        val repeatRadioButtonMap = mapOf(
-            RepeatTypeEnum.ONCE to binding.rbRepeatOnce,
-            RepeatTypeEnum.WEEKLY to binding.rbRepeatWeekly,
-            RepeatTypeEnum.MONTHLY to binding.rbRepeatMonthly,
-        )
-        repeatRadioButtonMap[viewModel.repeat.value]?.isChecked = true
+        when (viewModel.repeat.value) {
+            RepeatTypeEnum.ONCE -> binding.rbRepeatOnce
+            RepeatTypeEnum.WEEKLY -> binding.rbRepeatWeekly
+            RepeatTypeEnum.MONTHLY -> binding.rbRepeatMonthly
+        }.isChecked = true
 
         binding.rgRepeat.setOnCheckedChangeListener { _, checkedId ->
             viewModel.repeat.value = when (checkedId) {
+                R.id.rb_repeat_once -> RepeatTypeEnum.ONCE
                 R.id.rb_repeat_weekly -> RepeatTypeEnum.WEEKLY
                 R.id.rb_repeat_monthly -> RepeatTypeEnum.MONTHLY
                 else -> RepeatTypeEnum.ONCE
