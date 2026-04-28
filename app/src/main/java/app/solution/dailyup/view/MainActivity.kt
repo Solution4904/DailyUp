@@ -1,13 +1,15 @@
 package app.solution.dailyup.view
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +25,7 @@ import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.RepeatTypeEnum
+import app.solution.dailyup.utility.ScheduleAlarmScheduler
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.MainViewModel
@@ -43,10 +46,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val appNavigator = AppNavigator()
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var notificationPermissionResultLauncher: ActivityResultLauncher<String>
 
 
     //    LifeCycle
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun init() {
         binding.viewModel = viewModel
 
@@ -69,7 +72,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     )
 
                     scheduleViewModel.upsertSchedule(resultData)
-                    //scheduleViewModel.loadSchedules()
+                    ScheduleAlarmScheduler.add(this, resultData)
 
                     viewModel.onDateSelected(LocalDate.parse(resultData.date))
                     TraceLog(message = "registerForActivityResult -> $resultData")
@@ -77,12 +80,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         }
 
+        notificationPermissionResultLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                //  권한 획득
+            }
+        }
+
+
         setScheduleRecyclerViewAdapter()
         setCalendarRecyclerViewAdapter()
 
         observeViewModel()
         observeNavigation()
         observeEvent()
+
+        requestNotificationPermission()
     }
 
     /**
@@ -105,7 +119,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * Observe view model
      * 데이터 변경 관찰
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeViewModel() {
         viewModel.currentCalendar.observe(this) { date ->
             calendarAdapter.updateDates(date)
@@ -128,7 +141,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * Observe navigation
      * 화면 이동 관리
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeNavigation() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -140,7 +152,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     //    Function
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("NotifyDataSetChanged")
     private fun setScheduleRecyclerViewAdapter() {
         binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -191,6 +202,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 setMessage("선택하신 스케줄을 제거하시겠습니까?")
                 setPositiveButton("제거") { _, _ ->
                     scheduleViewModel.deleteSchedule(scheduleModel)
+                    ScheduleAlarmScheduler.cancel(this@MainActivity, scheduleModel)
                 }
                 setNegativeButton("취소") { _, _ -> }
             }.show()
@@ -198,7 +210,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setCalendarRecyclerViewAdapter() {
         binding.viewCalendar.layoutManager = GridLayoutManager(this@MainActivity, 7)
 
@@ -216,5 +227,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         val dateNow = LocalDate.now()
         binding.tvYearAndMonth.text = "${dateNow.year}년 ${dateNow.monthValue}월"
+    }
+
+    //  알림 권한 요청
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+        val granted = ActivityCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!granted) {
+            notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 }

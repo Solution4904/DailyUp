@@ -1,7 +1,5 @@
 package app.solution.dailyup.viewmodel
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,10 +15,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class MainViewModel : ViewModel() {
-    @RequiresApi(Build.VERSION_CODES.O)
     private val _currentCalendar = MutableLiveData<LocalDate>(LocalDate.now())
 
-    @RequiresApi(Build.VERSION_CODES.O)
     val currentCalendar: LiveData<LocalDate> = _currentCalendar
 
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
@@ -29,13 +25,10 @@ class MainViewModel : ViewModel() {
     private val _scheduleModel = MutableLiveData<ScheduleModel>()
     val scheduleModel: LiveData<ScheduleModel> = _scheduleModel
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private var currentWeek: LocalDate = LocalDate.now()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private val _currentDate = MutableLiveData<LocalDate>(LocalDate.now())
 
-    @RequiresApi(Build.VERSION_CODES.O)
     val currentDate: LiveData<LocalDate> = _currentDate
 
     private val _uiEvent = MutableSharedFlow<MainUiEvent>(
@@ -106,7 +99,6 @@ class MainViewModel : ViewModel() {
      * 주간 달력 주차 이동
      * @param request 이동할 주차(+1, -1)
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onMoveToAnotherWeek(request: Int) {
         currentWeek = currentWeek.plusWeeks(request.toLong())
 
@@ -120,7 +112,6 @@ class MainViewModel : ViewModel() {
      * 주간 달력 내 날짜 선택
      * @param selectedDate 선택된 날짜
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onDateSelected(selectedDate: LocalDate) {
         _currentDate.value = selectedDate
 
@@ -131,7 +122,6 @@ class MainViewModel : ViewModel() {
      * On move add schedule click
      * 일정 추가 화면으로 이동
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onMoveAddScheduleClick() {
         viewModelScope.launch {
             _navigationEvents.emit(NavigationEvent.MoveToAddScheduleActivity(null, _currentDate.value))

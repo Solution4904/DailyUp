@@ -27,7 +27,6 @@ class AddScheduleViewModel : ViewModel() {
     private val _id = MutableLiveData<String>(UUID.randomUUID().toString())
     val id: LiveData<String> = _id
 
-    @RequiresApi(Build.VERSION_CODES.O)
     val date = MutableLiveData<String>("")
     val title = MutableLiveData<String>("")
     val dec = MutableLiveData<String>("")
@@ -47,8 +46,6 @@ class AddScheduleViewModel : ViewModel() {
     val progressValue = _progressValue
 
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
     fun setData(param: ScheduleModel) {
         _id.value = param.id
         date.value = param.date
@@ -72,7 +69,6 @@ class AddScheduleViewModel : ViewModel() {
         type.value = param
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(param: String) {
         date.value = param
     }
@@ -143,7 +139,6 @@ class AddScheduleViewModel : ViewModel() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onConfirmClicked() {
         val data = ScheduleModel(
             id = _id.value!!,

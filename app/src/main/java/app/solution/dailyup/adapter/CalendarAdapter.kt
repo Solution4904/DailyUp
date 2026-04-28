@@ -2,10 +2,8 @@ package app.solution.dailyup.adapter
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import app.solution.dailyup.CalendarUtil
 import app.solution.dailyup.databinding.HorizontalCalendarItemBinding
@@ -13,7 +11,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.O)
 class CalendarAdapter(
     private val onDateClickEvent: (date: LocalDate) -> Unit,
     private val onUpdateDateEvent: (date: LocalDate) -> Unit,
