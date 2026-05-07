@@ -4,7 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -83,9 +85,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         notificationPermissionResultLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
-            if (isGranted) {
-                //  권한 획득
-            }
+            //  권한 허용
+            if (isGranted) return@registerForActivityResult
+
+            //  권한 거부
+            showNotificationPermissionDenindDialog()
         }
 
 
@@ -96,7 +100,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         observeNavigation()
         observeEvent()
 
-        requestNotificationPermission()
+        checkNotificationPermission()
     }
 
     /**
@@ -230,16 +234,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     //  알림 권한 요청
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+    private fun showNotificationPermissionDenindDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("알림 권한이 차단되어 있습니다.")
+            .setMessage("일정 알림을 위해 '설정'에서 알림 권한을 허용해주세요.")
+            .setPositiveButton("설정") { _, _ ->
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                })
+            }
+            .setNegativeButton("취소") { _, _ -> finishAffinity() }
+            .setCancelable(false)
+            .show()
+    }
 
-        val granted = ActivityCompat.checkSelfPermission(
-            this,
-            android.Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
+    //  알림 권한 확인
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
 
-        if (!granted) {
-            notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (!granted) {
+                notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
+
     }
 }

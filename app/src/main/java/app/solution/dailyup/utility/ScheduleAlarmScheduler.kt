@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.receiver.ScheduleAlarmReceiver
 import java.time.LocalDate
@@ -49,6 +50,7 @@ object ScheduleAlarmScheduler {
             putExtra(ConstKeys.SCHEDULE_ID, model.id)
             putExtra(ConstKeys.SCHEDULE_TITLE, model.title)
             putExtra(ConstKeys.SCHEDULE_DEC, model.dec)
+            putExtra(ConstKeys.SCHEDULE_ICONNAME, model.iconResId ?: R.drawable.ic_schedule_default)
         }
 
         return PendingIntent.getBroadcast(
