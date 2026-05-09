@@ -1,4 +1,4 @@
-package app.solution.dailyup
+package app.solution.dailyup.utility
 
 import java.time.DayOfWeek
 import java.time.LocalDate

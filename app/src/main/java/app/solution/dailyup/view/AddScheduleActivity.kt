@@ -9,7 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.BaseActivity
 import app.solution.dailyup.R
-import app.solution.dailyup.ScheduleIconSelectorBottomSheet
+import app.solution.dailyup.view.ScheduleIconSelectorBottomSheet
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
