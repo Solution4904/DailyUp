@@ -58,6 +58,10 @@ class ScheduleViewModel : ViewModel() {
         TraceLog(message = "Schedule 로드 -> \nrequest date : $date\nsize : ${_scheduleModels.value?.size}\n${_scheduleModels.value}")
     }
 
+    fun findScheduleById(id: String): ScheduleModel? {
+        return scheduleDatas.find { it.id == id }
+    }
+
     fun upsertSchedule(scheduleModel: ScheduleModel) {
         val index = scheduleDatas.indexOfFirst { it.id == scheduleModel.id }
 

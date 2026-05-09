@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -15,9 +16,9 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import app.solution.dailyup.AppNavigator
 import app.solution.dailyup.BaseActivity
 import app.solution.dailyup.R
 import app.solution.dailyup.adapter.CalendarAdapter
@@ -25,6 +26,7 @@ import app.solution.dailyup.adapter.ScheduleAdapter
 import app.solution.dailyup.databinding.ActivityMainBinding
 import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.navigation.AppNavigator
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
@@ -52,14 +54,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
 
     //    LifeCycle
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        setIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
     override fun init() {
         binding.viewModel = viewModel
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 result.data?.let {
-                    val resultData = ScheduleModel(
-                        type = ScheduleTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
+                    val resultData = ScheduleModel(type = ScheduleTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
                         id = it.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
                         title = it.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
                         dec = it.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
@@ -101,6 +109,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         observeEvent()
 
         checkNotificationPermission()
+
+        lifecycleScope.launch {
+            lifecycle.withStarted {
+                handleNotificationIntent(intent)
+            }
+        }
     }
 
     /**
@@ -124,15 +138,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * 데이터 변경 관찰
      */
     private fun observeViewModel() {
-        viewModel.currentCalendar.observe(this) { date ->
+        /*viewModel.currentCalendar.observe(this) { date ->
             calendarAdapter.updateDates(date)
 
             scheduleViewModel.loadSchedules(date.toString())
-        }
+        }*/
 
         viewModel.currentDate.observe(this) { date ->
             calendarAdapter.updateDates(date)
-
             scheduleViewModel.loadSchedules(date.toString())
         }
 
@@ -259,6 +272,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+    }
 
+    private fun handleNotificationIntent(intent: Intent) {
+        intent ?: return
+        if (!intent.getBooleanExtra(ConstKeys.FROM_NOTIFICATION, false)) return
+        val scheduleId = intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: return
+
+        intent.removeExtra(ConstKeys.FROM_NOTIFICATION)
+        intent.removeExtra(ConstKeys.SCHEDULE_ID)
+
+        val target = scheduleViewModel.findScheduleById(scheduleId)
+        if (target == null) {
+            Toast.makeText(this, "해당 일정을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        viewModel.onDateSelected(LocalDate.parse(target.date))
+        viewModel.onEditScheduleClick(target)
     }
 }

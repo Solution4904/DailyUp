@@ -18,6 +18,7 @@ object ConstKeys {
     const val SCHEDULE_REPEAT = "SCHEDULE_REPEAT"
 
     const val INTENT_EXTRA = "INTENT_EXTRA"
+    const val FROM_NOTIFICATION = "FROM_NOTIFICATION"
 
     const val SCHEDULE_DEFAULT_ICON = "ic_schedule_default"
 }

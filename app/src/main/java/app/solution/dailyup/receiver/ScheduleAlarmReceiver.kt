@@ -13,6 +13,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
 import androidx.core.graphics.drawable.toBitmap
 import app.solution.dailyup.R
 import app.solution.dailyup.utility.ConstKeys
@@ -37,15 +38,17 @@ class ScheduleAlarmReceiver : BroadcastReceiver() {
 
     private fun buildContentPendingIntent(context: Context, id: String): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(ConstKeys.SCHEDULE_ID, id)
+            putExtra(ConstKeys.FROM_NOTIFICATION, true)
         }
 
-        return PendingIntent.getActivity(
-            context,
-            id.hashCode(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        return TaskStackBuilder.create(context)
+            .addNextIntentWithParentStack(intent)
+            .getPendingIntent(
+                id.hashCode(),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )!!
     }
 
     private fun buildNotification(context: Context, title: String, dec: String, @DrawableRes iconResId: Int, contentPendingIntent: PendingIntent): Notification {

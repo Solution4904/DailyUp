@@ -15,20 +15,17 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class MainViewModel : ViewModel() {
-    private val _currentCalendar = MutableLiveData<LocalDate>(LocalDate.now())
-
-    val currentCalendar: LiveData<LocalDate> = _currentCalendar
-
-    private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
+    private val _navigationEvents = MutableSharedFlow<NavigationEvent>(
+        replay = 0,
+        extraBufferCapacity = 10,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val navigationEvents = _navigationEvents.asSharedFlow()
 
     private val _scheduleModel = MutableLiveData<ScheduleModel>()
     val scheduleModel: LiveData<ScheduleModel> = _scheduleModel
 
-    private var currentWeek: LocalDate = LocalDate.now()
-
     private val _currentDate = MutableLiveData<LocalDate>(LocalDate.now())
-
     val currentDate: LiveData<LocalDate> = _currentDate
 
     private val _uiEvent = MutableSharedFlow<MainUiEvent>(
@@ -100,11 +97,10 @@ class MainViewModel : ViewModel() {
      * @param request 이동할 주차(+1, -1)
      */
     fun onMoveToAnotherWeek(request: Int) {
-        currentWeek = currentWeek.plusWeeks(request.toLong())
+        val base = _currentDate.value ?: LocalDate.now()
+        _currentDate.value = base.plusWeeks(request.toLong())
 
-        _currentCalendar.value = currentWeek
-
-        TraceLog(message = "onMoveToAnotherWeek -> ${_currentCalendar.value}")
+        TraceLog(message = "onMoveToAnotherWeek -> ${_currentDate.value}")
     }
 
     /**
