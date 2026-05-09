@@ -11,11 +11,11 @@
 
     <LinearLayout
         android:id="@+id/layout_root"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingVertical="6dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="4dp"
         tools:background="@color/black">
 
         <TextView
