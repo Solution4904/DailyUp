@@ -1,12 +1,9 @@
 package app.solution.dailyup
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
-@RequiresApi(Build.VERSION_CODES.O)
 class CalendarUtil {
     fun getToday(): LocalDate = LocalDate.now()
 

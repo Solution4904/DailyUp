@@ -13,8 +13,12 @@ object ConstKeys {
     const val SCHEDULE_MAXVALUE = "SCHEDULE_MAXVALUE"
     const val SCHEDULE_VALUESTEP = "SCHEDULE_VALUESTEP"
     const val SCHEDULE_VALUE = "SCHEDULE_VALUE"
+    const val SCHEDULE_HOUR = "SCHEDULE_HOUR"
+    const val SCHEDULE_MINUTE = "SCHEDULE_MINUTE"
+    const val SCHEDULE_REPEAT = "SCHEDULE_REPEAT"
 
     const val INTENT_EXTRA = "INTENT_EXTRA"
+    const val FROM_NOTIFICATION = "FROM_NOTIFICATION"
 
     const val SCHEDULE_DEFAULT_ICON = "ic_schedule_default"
 }

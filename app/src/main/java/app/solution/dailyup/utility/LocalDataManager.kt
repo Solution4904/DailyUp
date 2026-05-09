@@ -2,8 +2,6 @@ package app.solution.dailyup.utility
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import app.solution.dailyup.CalendarUtil
 import app.solution.dailyup.TimePeriod
@@ -40,7 +38,6 @@ object LocalDataManager {
         return listOf()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun getSchedulesForPeriod(day: LocalDate, timePeriod: TimePeriod): List<ScheduleModel> {
         val scheduleDatas = prefs.getString(ConstKeys.SCHEDULE_LIST, null)?.let {
             Gson().fromJson(it, Array<ScheduleModel>::class.java).toList()

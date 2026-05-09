@@ -31,6 +31,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -41,7 +42,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -51,22 +51,25 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //    ViewModel
+    //  ViewModel
     implementation(libs.androidx.activity.ktx)
 
-    //    Hilt
+    //  Hilt
     implementation(libs.hilt.android.v2511)
     ksp(libs.hilt.android.compiler.v2511)
 
-    //    MVVM
+    //  MVVM
     implementation(libs.androidx.lifecycle.viewmodel.ktx.v291)
 
-    //    Gson
+    //  Gson
     implementation(libs.gson)
 
-    //    Glide
+    //  Glide
     implementation(libs.glide)
 
-    //    Material
+    //  Material
     implementation(libs.material.v1110)
+
+    //  java.time.* RequiresApi 제거
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

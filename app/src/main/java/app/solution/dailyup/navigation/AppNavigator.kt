@@ -1,4 +1,4 @@
-package app.solution.dailyup
+package app.solution.dailyup.navigation
 
 import android.app.Activity
 import android.content.Intent
@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import app.solution.dailyup.event.NavigationEvent
 import app.solution.dailyup.utility.ConstKeys
 import app.solution.dailyup.view.AddScheduleActivity
+import app.solution.dailyup.view.ChartActivity
 import app.solution.dailyup.view.SettingsActivity
 
 class AppNavigator {
