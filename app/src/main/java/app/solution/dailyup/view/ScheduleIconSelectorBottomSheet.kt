@@ -1,4 +1,4 @@
-package app.solution.dailyup
+package app.solution.dailyup.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -6,10 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridView
+import app.solution.dailyup.R
 import app.solution.dailyup.adapter.ScheduleIconGridAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-
 
 class ScheduleIconSelectorBottomSheet(
     private val onItemClick: (Int) -> Unit

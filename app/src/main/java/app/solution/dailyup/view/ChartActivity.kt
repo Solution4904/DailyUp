@@ -1,4 +1,4 @@
-package app.solution.dailyup
+package app.solution.dailyup.view
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -8,8 +8,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import app.solution.dailyup.R
 import app.solution.dailyup.databinding.ActivityChartBinding
 import app.solution.dailyup.utility.LocalDataManager
+import app.solution.dailyup.utility.TimePeriod
 import java.time.LocalDate
 
 class ChartActivity : AppCompatActivity() {
