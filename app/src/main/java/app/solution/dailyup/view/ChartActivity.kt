@@ -1,17 +1,23 @@
 package app.solution.dailyup.view
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import app.solution.dailyup.R
+import app.solution.dailyup.adapter.ChartPagerAdapter
 import app.solution.dailyup.databinding.ActivityChartBinding
+import app.solution.dailyup.model.ChartPageItem
+import app.solution.dailyup.model.ScheduleAchievedBox
 import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.TimePeriod
+import com.google.android.material.tabs.TabLayoutMediator
 import java.time.LocalDate
 
 class ChartActivity : AppCompatActivity() {
@@ -34,60 +40,48 @@ class ChartActivity : AppCompatActivity() {
             insets
         }
 
-        setProgressBar()
+        setupPager()
     }
-
 
     //  # Functions
-    @SuppressLint("SetTextI18n")
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun setProgressBar() {
-        calculateAchievement(LocalDate.now(), TimePeriod.DAY).let {
-            binding.apply {
-                progressbarDaily.progress = it.rate.toInt()
-                tvDaily.text = "${it.achieved} / ${it.total}"
-            }
-        }
+    private fun setupPager() {
+        val today = LocalDate.now()
+        val items = listOf(
+            buildPageItem(today, TimePeriod.TOTAL, R.string.chart_total_label, R.color.chart_total),
+            buildPageItem(today, TimePeriod.MONTH, R.string.chart_monthly_label, R.color.chart_monthly),
+            buildPageItem(today, TimePeriod.WEEK, R.string.chart_weekly_label, R.color.chart_weekly),
+            buildPageItem(today, TimePeriod.DAY, R.string.chart_daily_label, R.color.chart_daily),
+        )
 
-        calculateAchievement(LocalDate.now(), TimePeriod.WEEK).let {
-            binding.apply {
-                progressbarWeekly.progress = it.rate.toInt()
-                tvWeekly.text = "${it.achieved} / ${it.total}"
-            }
-        }
+        binding.vpChart.adapter = ChartPagerAdapter(items)
 
-        calculateAchievement(LocalDate.now(), TimePeriod.MONTH).let {
-            binding.apply {
-                progressbarMonthly.progress = it.rate.toInt()
-                tvMonthly.text = "${it.achieved} / ${it.total}"
-            }
-        }
+        TabLayoutMediator(binding.tabChart, binding.vpChart) { tab, position ->
+            tab.text = items[position].label
+        }.attach()
     }
 
-    /**
-     * 특정 날짜의 하루, 주간, 월간 성취율을 반환.
-     *
-     * @param day 날짜
-     * @param timePeriod 기간 (DAY, WEEK, MONTH)
-     * @return 성취율
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
+    private fun buildPageItem(day: LocalDate, period: TimePeriod, @StringRes labelRes: Int, @ColorRes colorRes: Int): ChartPageItem {
+        return ChartPageItem(
+            label = getString(labelRes),
+            indicatorColor = ContextCompat.getColor(this, colorRes),
+            box = calculateAchievement(day, period)
+        )
+    }
+
     private fun calculateAchievement(day: LocalDate, timePeriod: TimePeriod): ScheduleAchievedBox {
         val schedules = LocalDataManager.getSchedulesForPeriod(day, timePeriod)
-        val scheduleAchieved = schedules.filter {
-            it.progressValue == it.progressMaxValue || it.isCompleted
+        val achieved = schedules.count {
+            (it.progressMaxValue != null && it.progressValue == it.progressMaxValue) || it.isCompleted
         }
+        val rate = if (schedules.isEmpty())
+            0
+        else
+            (achieved * 100) / schedules.size
 
         return ScheduleAchievedBox(
             total = schedules.size,
-            achieved = scheduleAchieved.size,
-            rate = (scheduleAchieved.size.toDouble() / schedules.size.toDouble()) * 100
+            achieved = achieved,
+            rate = rate,
         )
     }
 }
-
-data class ScheduleAchievedBox(
-    val total: Int,
-    val achieved: Int,
-    val rate: Double,
-)

@@ -25,11 +25,13 @@ class CalendarUtil {
             TimePeriod.DAY -> day
             TimePeriod.WEEK -> day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
             TimePeriod.MONTH -> day.with(TemporalAdjusters.firstDayOfMonth())
+            TimePeriod.TOTAL -> day //  실제 호출 X
         }
         val endDay = when (timePeriod) {
             TimePeriod.DAY -> day
             TimePeriod.WEEK -> day.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
             TimePeriod.MONTH -> day.with(TemporalAdjusters.lastDayOfMonth())
+            TimePeriod.TOTAL -> day //  실제 호출 X
         }
 
         return Pair(startDay, endDay)
@@ -37,6 +39,7 @@ class CalendarUtil {
 }
 
 enum class TimePeriod {
+    TOTAL,
     DAY,
     WEEK,
     MONTH

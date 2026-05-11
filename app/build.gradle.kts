@@ -71,5 +71,7 @@ dependencies {
     implementation(libs.material.v1110)
 
     //  java.time.* RequiresApi 제거
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
 }
