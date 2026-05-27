@@ -13,14 +13,13 @@ class ChartPagerAdapter(private val items: List<ChartPageItem>) : RecyclerView.A
             binding.item = item
             binding.executePendingBindings()
 
-            val box = item.box
             binding.pbChart.setIndicatorColor(item.indicatorColor)
-            binding.pbChart.setProgressCompat(box.rate, true)
+            binding.pbChart.setProgressCompat(item.box.rate, true)
             binding.tvProgress.text = binding.root.context.getString(
                 R.string.chart_progress_format,
-                box.achieved,
-                box.total,
-                box.rate
+                item.box.achieved,
+                item.box.total,
+                item.box.rate
             )
         }
     }

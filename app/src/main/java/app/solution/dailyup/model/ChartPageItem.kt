@@ -10,6 +10,6 @@ data class ScheduleAchievedBox(
 
 data class ChartPageItem(
     val label: String,
-    @ColorInt val indicatorColor: Int,
+    @param:ColorInt val indicatorColor: Int,
     val box: ScheduleAchievedBox,
 )
