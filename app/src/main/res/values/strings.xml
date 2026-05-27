@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">DailyUp</string>
+
+    <string name="chart_total_label">전체 성취율</string>
+    <string name="chart_monthly_label">월간 성취율</string>
+    <string name="chart_weekly_label">주간 성취율</string>
+    <string name="chart_daily_label">일간 성취율</string>
+    <string name="chart_progress_format">%1$d / %2$d (%3$d%%)</string>
+
 </resources>

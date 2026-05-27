@@ -3,8 +3,6 @@ package app.solution.dailyup.utility
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import app.solution.dailyup.utility.CalendarUtil
-import app.solution.dailyup.utility.TimePeriod
 import app.solution.dailyup.model.ScheduleModel
 import com.google.gson.Gson
 import java.time.LocalDate
@@ -39,6 +37,8 @@ object LocalDataManager {
     }
 
     fun getSchedulesForPeriod(day: LocalDate, timePeriod: TimePeriod): List<ScheduleModel> {
+        if(timePeriod == TimePeriod.TOTAL) return getSchedules()
+
         val scheduleDatas = prefs.getString(ConstKeys.SCHEDULE_LIST, null)?.let {
             Gson().fromJson(it, Array<ScheduleModel>::class.java).toList()
         }
