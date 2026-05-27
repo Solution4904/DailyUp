@@ -5,9 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.model.ScheduleOccurrence
+import app.solution.dailyup.model.ScheduleProgressModel
 import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
+import app.solution.dailyup.utility.occursOn
+import java.time.LocalDate
+import java.util.Collections.emptyList
 
 class ScheduleViewModel : ViewModel() {
     // # Variable
@@ -26,6 +31,9 @@ class ScheduleViewModel : ViewModel() {
 
     private var scheduleDatas: MutableList<ScheduleModel> = mutableListOf()
 
+    private val _occurrences = MutableLiveData<List<ScheduleOccurrence>>(emptyList())
+    val occurrences: LiveData<List<ScheduleOccurrence>> = _occurrences
+
     // # LifeCycle
     init {
         scheduleDatas = LocalDataManager.getSchedules().toMutableList()
@@ -40,12 +48,32 @@ class ScheduleViewModel : ViewModel() {
     }
 
     // # Function
-    fun loadSchedules(date: String = "") {
-        _scheduleModels.value = if (date.isEmpty()) {
+    fun loadSchedules(date: String) {
+        val target = runCatching {
+            LocalDate.parse(date)
+        }.getOrNull()
+
+        if (target == null) {
+            _occurrences.value = emptyList()
+
+            return
+        }
+
+        val progressMap = LocalDataManager.getProgressMap()
+
+        _occurrences.value = scheduleDatas
+            .filter { it.occursOn(target) }
+            .map { schedule ->
+                val key = "${schedule.id}@$date"
+                val progress = progressMap[key] ?: ScheduleProgressModel(schedule.id, date)
+                ScheduleOccurrence(schedule, target, progress)
+            }
+
+        /*_scheduleModels.value = if (date.isEmpty()) {
             scheduleDatas
         } else {
             scheduleDatas.filter { it.date == date }
-        }
+        }*/
 
         /*val lodedData = LocalDataManager.getSchedules()
 

@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddScheduleViewModel : ViewModel() {
+    //  # Variable
     private val _uiEvent = MutableSharedFlow<AddScheduleUiEvent>(
         replay = 0,
         extraBufferCapacity = 10,
@@ -42,10 +43,8 @@ class AddScheduleViewModel : ViewModel() {
     private val _progressStepValue = MutableLiveData<Int?>(1)
     val progressStepValue: LiveData<Int?> = _progressStepValue
 
-    private val _progressValue = MutableLiveData<Int?>(0)
-    val progressValue = _progressValue
 
-
+    //  # Function
     fun setData(param: ScheduleModel) {
         _id.value = param.id
         date.value = param.date
@@ -58,7 +57,6 @@ class AddScheduleViewModel : ViewModel() {
         minute.value = param.minute
         _progressMaxValue.value = param.progressMaxValue
         _progressStepValue.value = param.progressStepValue
-        _progressValue.value = param.progressValue
     }
 
     fun setIconResId(resId: Int) {
@@ -150,7 +148,6 @@ class AddScheduleViewModel : ViewModel() {
             repeat = repeat.value!!,
             progressMaxValue = progressMaxValue.value!!,
             progressStepValue = progressStepValue.value!!,
-            progressValue = progressValue.value!!,
             hour = hour.value!!,
             minute = minute.value!!,
         )

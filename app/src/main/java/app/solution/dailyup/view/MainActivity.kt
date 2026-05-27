@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.navigation.AppNavigator
 import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
 import app.solution.dailyup.utility.ScheduleTypeEnum
@@ -67,7 +69,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 result.data?.let {
-                    val resultData = ScheduleModel(type = ScheduleTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
+                    val resultData = ScheduleModel(
+                        type = ScheduleTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
                         id = it.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
                         title = it.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
                         dec = it.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
@@ -75,7 +78,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         iconResId = it.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, -1).takeIf { it != -1 },
                         progressMaxValue = it.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, -1).takeIf { it != -1 },
                         progressStepValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, -1).takeIf { it != -1 },
-                        progressValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUE, -1).takeIf { it != -1 },
                         hour = it.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
                         minute = it.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
                         repeat = RepeatTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_REPEAT).toString()),
@@ -174,16 +176,35 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         scheduleAdapter = ScheduleAdapter(
-            scheduleList = mutableListOf(),
-            onItemClick = { position ->
-                viewModel.onEditScheduleClick(scheduleViewModel.scheduleModels.value!![position])
+            occurrence = mutableListOf(),
+            onItemClick = { occurrence ->
+                viewModel.onEditScheduleClick(occurrence.source)
             },
-            onIconClickForNormalType = { position ->
+            onIconClickForNormalType = { occurrence ->
+                val updated = occurrence.progress.copy(isComplete = true)
+
+                LocalDataManager.upsertProgress(updated)
+
+                scheduleViewModel.loadSchedules(occurrence.date.toString())
+            },
+            onIconClickForCountingType = { occurrence ->
+                val max = occurrence.source.progressMaxValue
+                val current = occurrence.progress.progressValue
+
+                if (max != null && current < max) {
+                    val step = occurrence.source.progressStepValue ?: 1
+                    //  todo : ???
+                    val next = (current + step).coerceAtMost(max)
+                    LocalDataManager.upsertProgress(occurrence.progress.copy(progressValue = next))
+                    scheduleViewModel.loadSchedules(occurrence.date.toString())
+                }
+            },
+            /*onIconClickForNormalType = { position ->
                 scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
                     viewModel.onScheduleCompleteClick(scheduleModels[position].copy(isCompleted = true))
                 }
-            },
-            onIconClickForCountingType = { position ->
+            },*/
+            /*onIconClickForCountingType = { position ->
                 scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
                     val targetScheduleModel = scheduleModels[position]
 
@@ -196,17 +217,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
                     viewModel.onScheduleIncreaseProcessClick(scheduleModels[position].copy(progressValue = value))
                 }
-            },
-            onItemLongClick = { position ->
-                viewModel.onScheduleDeleteDialog(scheduleViewModel.scheduleModels.value!![position])
+            },*/
+            onItemLongClick = { occurrence ->
+                viewModel.onScheduleDeleteDialog(occurrence.source)
             },
         )
         binding.layoutRecyclerview.adapter = scheduleAdapter
 
-        scheduleViewModel.scheduleModels.observe(this) { list ->
+        scheduleViewModel.occurrences.observe(this) { list ->
             scheduleAdapter.updateList(list)
 
-            TraceLog(message = "scheduleModels observe -> $list")
+            binding.layoutEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+//            binding.layoutRecyclerview.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+
+            TraceLog(message = "scheduleViewModel observe -> $list")
         }
 
         scheduleViewModel.loadSchedules(LocalDate.now().toString())

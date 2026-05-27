@@ -17,8 +17,12 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.graphics.drawable.toBitmap
 import app.solution.dailyup.R
 import app.solution.dailyup.utility.ConstKeys
+import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.NotificationHelper
+import app.solution.dailyup.utility.ScheduleAlarmScheduler
+import app.solution.dailyup.utility.nextOccurrenceAfter
 import app.solution.dailyup.view.MainActivity
+import java.time.LocalDate
 
 class ScheduleAlarmReceiver : BroadcastReceiver() {
     @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -32,8 +36,11 @@ class ScheduleAlarmReceiver : BroadcastReceiver() {
         val notification = buildNotification(context, title, dec, iconResId, contentPendingIntent)
 
         if (!hasNotificationPermission(context)) return
-
         NotificationManagerCompat.from(context).notify(id.hashCode(), notification)
+
+        val model = LocalDataManager.getSchedules().firstOrNull() { it.id == id } ?: return
+        val next = model.nextOccurrenceAfter(LocalDate.now()) ?: return
+        ScheduleAlarmScheduler.add(context, model, target = next)
     }
 
     private fun buildContentPendingIntent(context: Context, id: String): PendingIntent {

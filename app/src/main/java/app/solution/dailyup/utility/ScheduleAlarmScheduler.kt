@@ -15,8 +15,8 @@ import java.time.ZoneId
 
 object ScheduleAlarmScheduler {
     // 알람 등록
-    fun add(context: Context, model: ScheduleModel) {
-        val triggerMillis = computeTriggerMillis(model) ?: return
+    fun add(context: Context, model: ScheduleModel, target: LocalDate? = null) {
+        val triggerMillis = computeTriggerMillis(model, target) ?: return
         //  등록하려는 시간이 현재 시간보다 과거일 경우 return
         if (triggerMillis <= System.currentTimeMillis()) return
 
@@ -62,16 +62,25 @@ object ScheduleAlarmScheduler {
     }
 
     //  시간값 변환
-    private fun computeTriggerMillis(model: ScheduleModel): Long? {
-        if (model.date.isBlank()) return null
+    private fun computeTriggerMillis(model: ScheduleModel, target: LocalDate?): Long? {
+        val date = target ?: runCatching {
+            LocalDate.parse(model.date)
+        }.getOrNull() ?: return null
 
         //  ≒ try-catch
         return runCatching {
-            val date = LocalDate.parse(model.date)
             LocalDateTime.of(date, LocalTime.of(model.hour, model.minute))
                 .atZone(ZoneId.systemDefault())
                 .toInstant()
                 .toEpochMilli()
         }.getOrNull()
+
+        /*return runCatching {
+            val date = LocalDate.parse(model.date)
+            LocalDateTime.of(date, LocalTime.of(model.hour, model.minute))
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
+        }.getOrNull()*/
     }
 }

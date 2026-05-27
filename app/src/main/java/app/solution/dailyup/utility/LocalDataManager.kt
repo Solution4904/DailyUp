@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.model.ScheduleProgressModel
 import com.google.gson.Gson
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 object LocalDataManager {
     private lateinit var prefs: SharedPreferences
+    private const val SCHEDULE_PROGRESS_LIST = "SCHEDULE_PROGRESS_LIST"
 
     fun init(context: Context) {
         prefs = context.getSharedPreferences(ConstKeys.SHARED_PREFERENCES, Context.MODE_PRIVATE)
@@ -37,7 +39,7 @@ object LocalDataManager {
     }
 
     fun getSchedulesForPeriod(day: LocalDate, timePeriod: TimePeriod): List<ScheduleModel> {
-        if(timePeriod == TimePeriod.TOTAL) return getSchedules()
+        if (timePeriod == TimePeriod.TOTAL) return getSchedules()
 
         val scheduleDatas = prefs.getString(ConstKeys.SCHEDULE_LIST, null)?.let {
             Gson().fromJson(it, Array<ScheduleModel>::class.java).toList()
@@ -73,5 +75,29 @@ object LocalDataManager {
         prefs.edit { putString(ConstKeys.SCHEDULE_LIST, data) }
 
         TraceLog(message = "Schedule 저장 -> $data")
+    }
+
+    fun getProgressMap(): Map<String, ScheduleProgressModel> {
+        val raw = prefs.getString(SCHEDULE_PROGRESS_LIST, null) ?: return emptyMap()
+        val list = Gson().fromJson(raw, Array<ScheduleProgressModel>::class.java).toList()
+
+        //  todo:???
+        return list.associateBy { it.key }
+    }
+
+    fun saveProgressMap(map: Map<String, ScheduleProgressModel>) {
+        val json = Gson().toJson(map.values.toList())
+        prefs.edit { putString(SCHEDULE_PROGRESS_LIST, json) }
+    }
+
+    fun upsertProgress(progress: ScheduleProgressModel) {
+        val map = getProgressMap().toMutableMap()
+        map[progress.key] = progress
+        saveProgressMap(map)
+    }
+
+    fun deleteProgress(scheduleId: String) {
+        val map = getProgressMap().filterValues { it.scheduleId != scheduleId }
+        saveProgressMap(map)
     }
 }
