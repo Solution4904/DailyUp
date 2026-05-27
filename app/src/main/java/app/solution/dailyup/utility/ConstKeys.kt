@@ -21,4 +21,6 @@ object ConstKeys {
     const val FROM_NOTIFICATION = "FROM_NOTIFICATION"
 
     const val SCHEDULE_DEFAULT_ICON = "ic_schedule_default"
+
+    const val SCHEDULE_PROGRESS_LIST = "SCHEDULE_PROGRESS_LIST"
 }

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.widget.ImageButton
 import androidx.databinding.BindingAdapter
 import app.solution.dailyup.R
-import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.model.ScheduleOccurrence
 import com.bumptech.glide.Glide
 
 object BindingAdapters {
@@ -21,8 +21,24 @@ object BindingAdapters {
     @SuppressLint("UseCompatLoadingForDrawables")
     @JvmStatic
     @BindingAdapter("scheduleUpdate")
-    fun scheduleUpdate(view: ImageButton, scheduleModel: ScheduleModel) {
-        val iconResId = if (scheduleModel.isCompleted || scheduleModel.progressMaxValue == scheduleModel.progressValue) {
+    fun scheduleUpdate(view: ImageButton, occurrence: ScheduleOccurrence) {
+        val source = occurrence.source
+        val progress = occurrence.progress
+        val isDone = progress.isComplete
+                || (source.progressMaxValue != null
+                && progress.progressValue == source.progressMaxValue)
+        val iconResId = if (isDone) {
+            R.drawable.ic_check
+        } else {
+            source.iconResId
+        }
+
+        Glide
+            .with(view.context)
+            .load(iconResId)
+            .into(view)
+
+        /*val iconResId = if (scheduleModel.isCompleted || scheduleModel.progressMaxValue == scheduleModel.progressValue) {
             R.drawable.ic_check
         } else {
             scheduleModel.iconResId
@@ -30,6 +46,6 @@ object BindingAdapters {
 
         Glide.with(view.context)
             .load(iconResId)
-            .into(view)
+            .into(view)*/
     }
 }

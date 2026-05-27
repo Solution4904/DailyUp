@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="scheduleModel"
-            type="app.solution.dailyup.model.ScheduleModel" />
+            name="occurrence"
+            type="app.solution.dailyup.model.ScheduleOccurrence" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,7 +44,7 @@
                 android:layout_gravity="center"
                 android:background="@null"
                 android:scaleType="fitCenter"
-                app:scheduleUpdate="@{scheduleModel}"
+                app:scheduleUpdate="@{occurrence}"
                 tools:ignore="contentDescription"
                 tools:src="@drawable/ic_schedule_default" />
 
@@ -54,7 +54,7 @@
                 android:layout_margin="6dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@{scheduleModel.title}"
+                android:text="@{occurrence.source.title}"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:text="TITLE"
@@ -66,7 +66,7 @@
                 android:layout_margin="6dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@{scheduleModel.dec}"
+                android:text="@{occurrence.source.dec}"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:text="DEC"

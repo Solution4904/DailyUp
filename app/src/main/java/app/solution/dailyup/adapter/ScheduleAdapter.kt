@@ -3,68 +3,70 @@ package app.solution.dailyup.adapter
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.adapters.ViewBindingAdapter.setOnLongClickListener
 import androidx.recyclerview.widget.RecyclerView
+import app.solution.dailyup.BR.occurrence
 import app.solution.dailyup.databinding.ScheduleViewCountingBinding
 import app.solution.dailyup.databinding.ScheduleViewNormalBinding
 import app.solution.dailyup.model.ScheduleModel
+import app.solution.dailyup.model.ScheduleOccurrence
 import app.solution.dailyup.utility.ScheduleTypeEnum
 
 class ScheduleAdapter(
-    private val scheduleList: MutableList<ScheduleModel>,
-    private val onIconClickForNormalType: (Int) -> Unit,
-    private val onIconClickForCountingType: (Int) -> Unit,
-    private val onItemClick: (Int) -> Unit,
-    private val onItemLongClick: (Int) -> Unit,
+    private val occurrence: MutableList<ScheduleOccurrence>,
+    private val onIconClickForNormalType: (ScheduleOccurrence) -> Unit,
+    private val onIconClickForCountingType: (ScheduleOccurrence) -> Unit,
+    private val onItemClick: (ScheduleOccurrence) -> Unit,
+    private val onItemLongClick: (ScheduleOccurrence) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateList(newScheduleList: List<ScheduleModel>) {
-        scheduleList.clear()
-        scheduleList.addAll(newScheduleList)
+    fun updateList(newScheduleList: List<ScheduleOccurrence>) {
+        occurrence.clear()
+        occurrence.addAll(newScheduleList)
         notifyDataSetChanged()
     }
 
     inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
-            binding.scheduleModel = scheduleList[position]
-            binding.layoutRoot.apply {
-                setOnClickListener {
-                    onItemClick(position)
-                }
+            val item = occurrence[position]
 
-                setOnLongClickListener {
-                    onItemLongClick(position)
-                    true
-                }
+            binding.occurrence = item
+
+            binding.layoutRoot.setOnClickListener {
+                onItemClick(item)
             }
 
-            binding.btnIcon.apply {
-                setOnClickListener {
-                    onIconClickForNormalType(position)
-                }
+            binding.layoutRoot.setOnLongClickListener {
+                onItemLongClick(item)
+                true
+            }
+
+            binding.btnIcon.setOnClickListener {
+                onIconClickForNormalType(item)
             }
         }
     }
 
     inner class ScheduleCountingViewHolder(private val binding: ScheduleViewCountingBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
-            binding.scheduleModel = scheduleList[position]
-            binding.layoutRoot.apply {
-                setOnClickListener {
-                    onItemClick(position)
-                }
+            val item = occurrence[position]
 
-                setOnLongClickListener {
-                    onItemLongClick(position)
-                    true
-                }
+            binding.occurrence = item
+
+            binding.layoutRoot.setOnClickListener {
+                onItemClick(item)
             }
 
-            binding.pbIcon.apply {
-                setOnClickListener {
-                    onIconClickForCountingType(position)
-                }
+            binding.layoutRoot.setOnLongClickListener {
+                onItemLongClick(item)
+                true
             }
+
+            binding.pbIcon.setOnClickListener {
+                onIconClickForCountingType(item)
+            }
+
         }
     }
 
@@ -84,6 +86,6 @@ class ScheduleAdapter(
         }
     }
 
-    override fun getItemViewType(position: Int) = scheduleList[position].type.ordinal
-    override fun getItemCount(): Int = scheduleList.size
+    override fun getItemViewType(position: Int) = occurrence[position].source.type.ordinal
+    override fun getItemCount(): Int = occurrence.size
 }

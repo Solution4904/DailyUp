@@ -83,12 +83,8 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             repeat = RepeatTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_REPEAT).toString()),
             progressMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
             progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
-            progressValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0),
             hour = intent.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
             minute = intent.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
-
-//            isCompleted = false
-            // TODO: Completed 상태도 전달해야 함
         )
 
         viewModel.setData(scheduleModel)
@@ -188,7 +184,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
                 putExtra(ConstKeys.SCHEDULE_REPEAT, repeat.name)
                 putExtra(ConstKeys.SCHEDULE_MAXVALUE, progressMaxValue)
                 putExtra(ConstKeys.SCHEDULE_VALUESTEP, progressStepValue)
-                putExtra(ConstKeys.SCHEDULE_VALUE, progressValue)
                 putExtra(ConstKeys.SCHEDULE_HOUR, hour)
                 putExtra(ConstKeys.SCHEDULE_MINUTE, minute)
             }
