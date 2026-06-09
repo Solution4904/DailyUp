@@ -74,13 +74,5 @@ object ScheduleAlarmScheduler {
                 .toInstant()
                 .toEpochMilli()
         }.getOrNull()
-
-        /*return runCatching {
-            val date = LocalDate.parse(model.date)
-            LocalDateTime.of(date, LocalTime.of(model.hour, model.minute))
-                .atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli()
-        }.getOrNull()*/
     }
 }

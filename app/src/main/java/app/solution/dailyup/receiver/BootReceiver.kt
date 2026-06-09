@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
+import app.solution.dailyup.utility.nextOccurrenceAfter
+import java.time.LocalDate
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -18,9 +20,14 @@ class BootReceiver : BroadcastReceiver() {
         }
     }
 
+    //  부팅으로 인해 리셋된 모든 일정 재등록
     private fun reStartAllSchedules(context: Context) {
+        val today = LocalDate.now()
+
         LocalDataManager.getSchedules().forEach { schedule ->
-            ScheduleAlarmScheduler.add(context, schedule)
+            val next = schedule.nextOccurrenceAfter(today.minusDays(1)) ?: return@forEach
+
+            ScheduleAlarmScheduler.add(context, schedule, next)
         }
     }
 }
