@@ -7,4 +7,7 @@
     <string name="chart_daily_label">일간 성취율</string>
     <string name="chart_progress_format">%1$d / %2$d (%3$d%%)</string>
 
+    <string name="once">한 번</string>
+    <string name="weekly">매 주</string>
+    <string name="monthly">매 달</string>
 </resources>
