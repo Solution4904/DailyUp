@@ -48,9 +48,9 @@ object ScheduleAlarmScheduler {
     private fun buildPendingIntent(context: Context, model: ScheduleModel): PendingIntent {
         val intent = Intent(context, ScheduleAlarmReceiver::class.java).apply {
             putExtra(ConstKeys.SCHEDULE_ID, model.id)
-            putExtra(ConstKeys.SCHEDULE_TITLE, model.title)
+            /*putExtra(ConstKeys.SCHEDULE_TITLE, model.title)
             putExtra(ConstKeys.SCHEDULE_DEC, model.dec)
-            putExtra(ConstKeys.SCHEDULE_ICONNAME, model.iconResId ?: R.drawable.ic_schedule_default)
+            putExtra(ConstKeys.SCHEDULE_ICONNAME, model.iconResId ?: R.drawable.ic_schedule_default)*/
         }
 
         return PendingIntent.getBroadcast(

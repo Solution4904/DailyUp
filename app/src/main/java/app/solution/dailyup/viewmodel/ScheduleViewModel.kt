@@ -3,14 +3,17 @@ package app.solution.dailyup.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.model.ScheduleOccurrence
 import app.solution.dailyup.model.ScheduleProgressModel
 import app.solution.dailyup.utility.LocalDataManager
+import app.solution.dailyup.utility.LocalDataManager.saveSchedules
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.utility.occursOn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Collections.emptyList
 
@@ -36,9 +39,15 @@ class ScheduleViewModel : ViewModel() {
 
     // # LifeCycle
     init {
-        scheduleDatas = LocalDataManager.getSchedules().toMutableList()
+        viewModelScope.launch {
+            scheduleDatas = LocalDataManager.getSchedules().toMutableList()
 
-        TraceLog(message = "ScheduleViewModel 생성")
+            TraceLog(message = "ScheduleViewModel 생성")
+        }
+
+        /*scheduleDatas = LocalDataManager.getSchedules().toMutableList()
+
+        TraceLog(message = "ScheduleViewModel 생성")*/
     }
 
     override fun onCleared() {
@@ -59,6 +68,29 @@ class ScheduleViewModel : ViewModel() {
             return
         }
 
+        viewModelScope.launch {
+            val progressMap = LocalDataManager.getProgressMap()
+            _occurrences.value = scheduleDatas
+                .filter {
+                    it.occursOn(target)
+                }
+                .map { schedule ->
+                    val key = "${schedule.id}@$date"
+                    val progress = progressMap[key] ?: ScheduleProgressModel(schedule.id, date)
+                    ScheduleOccurrence(schedule, target, progress)
+                }
+        }
+
+        /*val target = runCatching {
+            LocalDate.parse(date)
+        }.getOrNull()
+
+        if (target == null) {
+            _occurrences.value = emptyList()
+
+            return
+        }
+
         val progressMap = LocalDataManager.getProgressMap()
 
         _occurrences.value = scheduleDatas
@@ -67,7 +99,8 @@ class ScheduleViewModel : ViewModel() {
                 val key = "${schedule.id}@$date"
                 val progress = progressMap[key] ?: ScheduleProgressModel(schedule.id, date)
                 ScheduleOccurrence(schedule, target, progress)
-            }
+            }*/
+
 
         /*_scheduleModels.value = if (date.isEmpty()) {
             scheduleDatas
@@ -159,9 +192,17 @@ class ScheduleViewModel : ViewModel() {
         TraceLog(message = "Schedule 삭제 -> $scheduleModel")
     }
 
-    fun saveSchedules() {
+    /*fun saveSchedules() {
         LocalDataManager.saveSchedules(scheduleDatas)
 
         TraceLog(message = "scheduleDatas 저장")
+    }*/
+
+    fun saveSchedules() {
+        viewModelScope.launch {
+            LocalDataManager.saveSchedules(scheduleDatas)
+
+            TraceLog(message = "scheduleDatas 저장")
+        }
     }
 }

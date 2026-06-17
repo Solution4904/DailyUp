@@ -28,6 +28,21 @@ class ScheduleAlarmReceiver : BroadcastReceiver() {
     @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: return
+
+        val model = LocalDataManager.getSchedules().firstOrNull { it.id == id } ?: return
+
+        val iconResId = model.iconResId ?: R.drawable.ic_schedule_default
+        val contentPendingIntent = buildContentPendingIntent(context, id)
+        val notification = buildNotification(context, model.title, model.dec, iconResId, contentPendingIntent)
+
+        if (!hasNotificationPermission(context)) return
+        NotificationManagerCompat.from(context).notify(id.hashCode(), notification)
+
+        val next = model.nextOccurrenceAfter(LocalDate.now()) ?: return
+        ScheduleAlarmScheduler.add(context, model, next)
+
+
+        /*val id = intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: return
         val title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).orEmpty()
         val dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).orEmpty()
         val iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default)
@@ -40,7 +55,7 @@ class ScheduleAlarmReceiver : BroadcastReceiver() {
 
         val model = LocalDataManager.getSchedules().firstOrNull() { it.id == id } ?: return
         val next = model.nextOccurrenceAfter(LocalDate.now()) ?: return
-        ScheduleAlarmScheduler.add(context, model, target = next)
+        ScheduleAlarmScheduler.add(context, model, target = next)*/
     }
 
     private fun buildContentPendingIntent(context: Context, id: String): PendingIntent {

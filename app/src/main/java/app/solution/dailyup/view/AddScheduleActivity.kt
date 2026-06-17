@@ -56,7 +56,7 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         setButtonsEvent()
     }*/
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun init() {
         binding.viewModel = viewModel
 
@@ -71,9 +71,11 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
      * Check intent data
      * 일정 편집으로 들어왔는지 확인 후 ViewModel에 데이터 세팅 호출.
      */
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun initIntentData() {
-        val scheduleModel = ScheduleModel(
+        val scheduleModel = intent.getParcelableExtra(ConstKeys.SCHEDULE_MODEL, ScheduleModel::class.java) ?: return
+
+        /*val scheduleModel = ScheduleModel(
             id = (intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: UUID.randomUUID()).toString(),
             date = (intent.getStringExtra(ConstKeys.SCHEDULE_DATE) ?: LocalDate.now()).toString(),
             title = (intent.getStringExtra(ConstKeys.SCHEDULE_TITLE) ?: "").toString(),
@@ -85,7 +87,7 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
             hour = intent.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
             minute = intent.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
-        )
+        )*/
 
         viewModel.setData(scheduleModel)
 
@@ -174,6 +176,10 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
 //        finish()
 
         val resultIntent = Intent().apply {
+            putExtra(ConstKeys.SCHEDULE_MODEL, scheduleModel)
+        }
+
+        /*val resultIntent = Intent().apply {
             with(scheduleModel) {
                 putExtra(ConstKeys.SCHEDULE_ID, id)
                 putExtra(ConstKeys.SCHEDULE_DATE, date)
@@ -187,7 +193,7 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
                 putExtra(ConstKeys.SCHEDULE_HOUR, hour)
                 putExtra(ConstKeys.SCHEDULE_MINUTE, minute)
             }
-        }
+        }*/
 
         TraceLog(message = "scheduleSave -> $scheduleModel")
 

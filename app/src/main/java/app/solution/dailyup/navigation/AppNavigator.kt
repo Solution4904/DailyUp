@@ -29,6 +29,12 @@ class AppNavigator {
 
                 if (event.scheduleModel != null) {
                     intent.apply {
+                        putExtra(ConstKeys.SCHEDULE_MODEL, event.scheduleModel)
+                    }
+                }
+
+                /*if (event.scheduleModel != null) {
+                    intent.apply {
                         putExtra(ConstKeys.SCHEDULE_ID, event.scheduleModel.id)
                         putExtra(ConstKeys.SCHEDULE_TITLE, event.scheduleModel.title)
                         putExtra(ConstKeys.SCHEDULE_DATE, event.scheduleModel.date)
@@ -45,7 +51,7 @@ class AppNavigator {
                     intent.apply {
                         putExtra(ConstKeys.SCHEDULE_DATE, event.selectedDate.toString())
                     }
-                }
+                }*/
                 activityLauncher?.launch(intent)
 
                 /*if (event.scheduleModel == null) {

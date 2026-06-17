@@ -99,7 +99,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             if (isGranted) return@registerForActivityResult
 
             //  권한 거부
-            showNotificationPermissionDenindDialog()
+            showNotificationPermissionDeniedDialog()
         }
 
 
@@ -183,7 +183,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             onIconClickForNormalType = { occurrence ->
                 val updated = occurrence.progress.copy(isComplete = true)
 
-                LocalDataManager.upsertProgress(updated)
+                //  todo:???
+                lifecycleScope.launch {
+                    LocalDataManager.upsertProgress(updated)
+                }
 
                 scheduleViewModel.loadSchedules(occurrence.date.toString())
             },
@@ -271,7 +274,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     //  알림 권한 요청
-    private fun showNotificationPermissionDenindDialog() {
+    private fun showNotificationPermissionDeniedDialog() {
         AlertDialog.Builder(this)
             .setTitle("알림 권한이 차단되어 있습니다.")
             .setMessage("일정 알림을 위해 '설정'에서 알림 권한을 허용해주세요.")

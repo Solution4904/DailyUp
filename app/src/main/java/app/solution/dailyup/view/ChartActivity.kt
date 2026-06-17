@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.R
 import app.solution.dailyup.adapter.ChartPagerAdapter
 import app.solution.dailyup.databinding.ActivityChartBinding
@@ -20,6 +21,7 @@ import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.TimePeriod
 import app.solution.dailyup.utility.occurrencesIn
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class ChartActivity : AppCompatActivity() {
@@ -85,8 +87,11 @@ class ChartActivity : AppCompatActivity() {
     //  일정 성취율 계산
     private fun calculateAchievement(timePeriod: TimePeriod): ScheduleAchievedBox {
         val today = LocalDate.now()
-        val schedules = LocalDataManager.getSchedules()
-        val progressMap = LocalDataManager.getProgressMap()
+        //  todo:???
+        lifecycleScope.launch {
+            val schedules = LocalDataManager.getSchedules()
+            val progressMap = LocalDataManager.getProgressMap()
+        }
 
         val range: ClosedRange<LocalDate> = when (timePeriod) {
             TimePeriod.TOTAL -> {
