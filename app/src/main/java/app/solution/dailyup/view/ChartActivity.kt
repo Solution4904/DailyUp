@@ -44,36 +44,41 @@ class ChartActivity : AppCompatActivity() {
             insets
         }
 
-        setupPager()
+        lifecycleScope.launch {
+            setupPager()
+        }
     }
 
     //  # Functions
     //  ViewPager 세팅
-    private fun setupPager() {
+    private suspend fun setupPager() {
+        val schedules = LocalDataManager.getSchedules()
+        val progressMap = LocalDataManager.getProgressMap()
+
         val items = listOf(
             //  전체 성취율
             ChartPageItem(
                 label = getString(R.string.chart_total_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_total),
-                box = calculateAchievement(TimePeriod.TOTAL)
+                box = calculateAchievement(TimePeriod.TOTAL, schedules, progressMap)
             ),
             //  월간 성취율
             ChartPageItem(
                 label = getString(R.string.chart_monthly_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_monthly),
-                box = calculateAchievement(TimePeriod.MONTH)
+                box = calculateAchievement(TimePeriod.MONTH, schedules, progressMap)
             ),
             //  주간 성취율
             ChartPageItem(
                 label = getString(R.string.chart_weekly_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_weekly),
-                box = calculateAchievement(TimePeriod.WEEK)
+                box = calculateAchievement(TimePeriod.WEEK, schedules, progressMap)
             ),
             //  일간 성취율
             ChartPageItem(
                 label = getString(R.string.chart_daily_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_daily),
-                box = calculateAchievement(TimePeriod.DAY)
+                box = calculateAchievement(TimePeriod.DAY, schedules, progressMap)
             ),
         )
 
@@ -85,13 +90,8 @@ class ChartActivity : AppCompatActivity() {
     }
 
     //  일정 성취율 계산
-    private fun calculateAchievement(timePeriod: TimePeriod): ScheduleAchievedBox {
+    private fun calculateAchievement(timePeriod: TimePeriod, schedules: List<ScheduleModel>, progressMap: Map<String, ScheduleProgressModel>): ScheduleAchievedBox {
         val today = LocalDate.now()
-        //  todo:???
-        lifecycleScope.launch {
-            val schedules = LocalDataManager.getSchedules()
-            val progressMap = LocalDataManager.getProgressMap()
-        }
 
         val range: ClosedRange<LocalDate> = when (timePeriod) {
             TimePeriod.TOTAL -> {

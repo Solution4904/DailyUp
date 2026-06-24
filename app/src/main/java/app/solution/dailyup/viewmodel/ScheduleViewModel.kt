@@ -33,14 +33,17 @@ class ScheduleViewModel : ViewModel() {
     val scheduleModels: LiveData<List<ScheduleModel>> = _scheduleModels
 
     private var scheduleDatas: MutableList<ScheduleModel> = mutableListOf()
+    private var progressCache: Map<String, ScheduleProgressModel> = emptyMap()
 
     private val _occurrences = MutableLiveData<List<ScheduleOccurrence>>(emptyList())
     val occurrences: LiveData<List<ScheduleOccurrence>> = _occurrences
+
 
     // # LifeCycle
     init {
         viewModelScope.launch {
             scheduleDatas = LocalDataManager.getSchedules().toMutableList()
+            progressCache = LocalDataManager.getProgressMap()
 
             TraceLog(message = "ScheduleViewModel 생성")
         }
@@ -68,18 +71,15 @@ class ScheduleViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch {
-            val progressMap = LocalDataManager.getProgressMap()
-            _occurrences.value = scheduleDatas
-                .filter {
-                    it.occursOn(target)
-                }
-                .map { schedule ->
-                    val key = "${schedule.id}@$date"
-                    val progress = progressMap[key] ?: ScheduleProgressModel(schedule.id, date)
-                    ScheduleOccurrence(schedule, target, progress)
-                }
-        }
+        _occurrences.value = scheduleDatas
+            .filter {
+                it.occursOn(target)
+            }
+            .map { schedule ->
+                val key = "${schedule.id}@$date"
+                val progress = progressCache[key] ?: ScheduleProgressModel(schedule.id, date)
+                ScheduleOccurrence(schedule, target, progress)
+            }
 
         /*val target = runCatching {
             LocalDate.parse(date)
@@ -117,6 +117,33 @@ class ScheduleViewModel : ViewModel() {
         }*/
 
         TraceLog(message = "Schedule 로드 -> \nrequest date : $date\nsize : ${_scheduleModels.value?.size}\n${_scheduleModels.value}")
+    }
+
+    fun completeProgress(occurrence: ScheduleOccurrence) {
+        viewModelScope.launch {
+            val updated = occurrence.progress.copy(isComplete = true)
+
+            //  todo:???
+            LocalDataManager.upsertProgress(updated)
+            progressCache = progressCache + (updated.key to updated)
+            loadSchedules(occurrence.date.toString())
+        }
+    }
+
+    fun incrementProgress(occurrence: ScheduleOccurrence){
+        val max = occurrence.source.progressMaxValue ?: return
+        if(occurrence.progress.progressValue >= max) return
+        val step = occurrence.source.progressStepValue ?: 1
+        //  todo:???
+        val next = (occurrence.progress.progressValue + step).coerceAtMost(max)
+
+        viewModelScope.launch {
+            val updated = occurrence.progress.copy(progressValue = next)
+            LocalDataManager.upsertProgress(updated)
+            //  todo:???
+            progressCache = progressCache + (updated.key to updated)
+            loadSchedules(occurrence.date.toString())
+        }
     }
 
     fun findScheduleById(id: String): ScheduleModel? {

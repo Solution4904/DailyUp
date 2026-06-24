@@ -171,27 +171,29 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     //    Function
-    @SuppressLint("NotifyDataSetChanged")
     private fun setScheduleRecyclerViewAdapter() {
         binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         scheduleAdapter = ScheduleAdapter(
-            occurrence = mutableListOf(),
             onItemClick = { occurrence ->
                 viewModel.onEditScheduleClick(occurrence.source)
             },
             onIconClickForNormalType = { occurrence ->
-                val updated = occurrence.progress.copy(isComplete = true)
+                scheduleViewModel.completeProgress(occurrence)
+
+                /*val updated = occurrence.progress.copy(isComplete = true)
 
                 //  todo:???
                 lifecycleScope.launch {
                     LocalDataManager.upsertProgress(updated)
                 }
 
-                scheduleViewModel.loadSchedules(occurrence.date.toString())
+                scheduleViewModel.loadSchedules(occurrence.date.toString())*/
             },
             onIconClickForCountingType = { occurrence ->
-                val max = occurrence.source.progressMaxValue
+                scheduleViewModel.incrementProgress(occurrence)
+
+                /*val max = occurrence.source.progressMaxValue
                 val current = occurrence.progress.progressValue
 
                 if (max != null && current < max) {
@@ -200,7 +202,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     val next = (current + step).coerceAtMost(max)
                     LocalDataManager.upsertProgress(occurrence.progress.copy(progressValue = next))
                     scheduleViewModel.loadSchedules(occurrence.date.toString())
-                }
+                }*/
             },
             /*onIconClickForNormalType = { position ->
                 scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
@@ -228,7 +230,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.layoutRecyclerview.adapter = scheduleAdapter
 
         scheduleViewModel.occurrences.observe(this) { list ->
-            scheduleAdapter.updateList(list)
+            scheduleAdapter.submitList(list)
+//            scheduleAdapter.updateList(list)
 
             binding.layoutEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
 //            binding.layoutRecyclerview.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE

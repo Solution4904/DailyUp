@@ -82,7 +82,6 @@ class CalendarAdapter(
 //        notifyDataSetChanged()
 //    }
 
-    @SuppressLint("NotifyDataSetChanged")
     fun updateDates(date: LocalDate) {
         weekDate = date
         weekDates = CalendarUtil().getWeeklyDates(date)
