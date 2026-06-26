@@ -1,15 +1,15 @@
 package app.solution.dailyup.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.solution.dailyup.MyApplication
 import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.model.ScheduleOccurrence
 import app.solution.dailyup.model.ScheduleProgressModel
-import app.solution.dailyup.utility.LocalDataManager
-import app.solution.dailyup.utility.LocalDataManager.saveSchedules
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.utility.occursOn
@@ -17,8 +17,11 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Collections.emptyList
 
-class ScheduleViewModel : ViewModel() {
+//  todo:???
+class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
     // # Variable
+    private val repo = (app as MyApplication).scheduleRepository
+
     val type = MutableLiveData<ScheduleTypeEnum>(ScheduleTypeEnum.NORMAL)
     val date = MutableLiveData<String>("")
     val id = MutableLiveData<String>("")
@@ -42,8 +45,8 @@ class ScheduleViewModel : ViewModel() {
     // # LifeCycle
     init {
         viewModelScope.launch {
-            scheduleDatas = LocalDataManager.getSchedules().toMutableList()
-            progressCache = LocalDataManager.getProgressMap()
+            scheduleDatas = repo.getSchedules().toMutableList()
+            progressCache = repo.getProgressMap()
 
             TraceLog(message = "ScheduleViewModel 생성")
         }
@@ -124,22 +127,22 @@ class ScheduleViewModel : ViewModel() {
             val updated = occurrence.progress.copy(isComplete = true)
 
             //  todo:???
-            LocalDataManager.upsertProgress(updated)
+            repo.upsertProgress(updated)
             progressCache = progressCache + (updated.key to updated)
             loadSchedules(occurrence.date.toString())
         }
     }
 
-    fun incrementProgress(occurrence: ScheduleOccurrence){
+    fun incrementProgress(occurrence: ScheduleOccurrence) {
         val max = occurrence.source.progressMaxValue ?: return
-        if(occurrence.progress.progressValue >= max) return
+        if (occurrence.progress.progressValue >= max) return
         val step = occurrence.source.progressStepValue ?: 1
         //  todo:???
         val next = (occurrence.progress.progressValue + step).coerceAtMost(max)
 
         viewModelScope.launch {
             val updated = occurrence.progress.copy(progressValue = next)
-            LocalDataManager.upsertProgress(updated)
+            repo.upsertProgress(updated)
             //  todo:???
             progressCache = progressCache + (updated.key to updated)
             loadSchedules(occurrence.date.toString())
@@ -227,7 +230,7 @@ class ScheduleViewModel : ViewModel() {
 
     fun saveSchedules() {
         viewModelScope.launch {
-            LocalDataManager.saveSchedules(scheduleDatas)
+            repo.saveSchedules(scheduleDatas)
 
             TraceLog(message = "scheduleDatas 저장")
         }

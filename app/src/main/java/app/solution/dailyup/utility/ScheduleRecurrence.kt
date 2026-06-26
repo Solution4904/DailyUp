@@ -1,7 +1,9 @@
 package app.solution.dailyup.utility
 
+import android.util.Log.d
 import app.solution.dailyup.model.ScheduleModel
 import java.time.LocalDate
+import java.time.YearMonth
 
 //  해당 날짜에 이 일정의 발생 여부
 fun ScheduleModel.occursOn(target: LocalDate): Boolean {
@@ -31,14 +33,61 @@ fun ScheduleModel.occursOn(target: LocalDate): Boolean {
 //  todo:???
 //  특정 날짜 범위에서 발생하는 모든 회차 날짜
 fun ScheduleModel.occurrencesIn(range: ClosedRange<LocalDate>): List<LocalDate> {
+    val start = runCatching {
+        LocalDate.parse(date)
+    }.getOrNull() ?: return emptyList()
+
+    val rangeStart = maxOf(range.start, start)
+
+    if (rangeStart.isAfter(range.endInclusive)) return emptyList()
+
     val list = mutableListOf<LocalDate>()
+    when (repeat) {
+        RepeatTypeEnum.ONCE -> {
+            if (occursOn(start) && !start.isBefore(range.start) && !start.isAfter(range.endInclusive)) {
+                list.add(start)
+            }
+        }
+
+        RepeatTypeEnum.WEEKLY -> {
+            val offset = (start.dayOfWeek.value - rangeStart.dayOfWeek.value + 7) % 7
+            var day = rangeStart.plusDays(offset.toLong())
+            while (!day.isAfter(range.endInclusive)) {
+                if (occursOn(day))
+                    list.add(day)
+
+                day = day.plusDays(7)
+            }
+        }
+
+        RepeatTypeEnum.MONTHLY -> {
+            val day = start.dayOfMonth
+            val yearMonth = YearMonth.from(rangeStart)
+            while (!yearMonth.atDay(1).isAfter(range.endInclusive)) {
+                if (day <= yearMonth.lengthOfMonth()) {
+                    val tempDay = yearMonth.atDay(day)
+
+                    if (!tempDay.isBefore(rangeStart) && !tempDay.isAfter(range.endInclusive) && occursOn(tempDay)) {
+                        list.add(tempDay)
+                    }
+                }
+
+                yearMonth.plusMonths(1)
+            }
+        }
+    }
+
+    return list
+
+
+    /*val list = mutableListOf<LocalDate>()
     var tempDate = range.start
     while (!tempDate.isAfter(range.endInclusive)) {
         if (occursOn(tempDate)) list.add(tempDate)
         tempDate = tempDate.plusDays(1)
     }
 
-    return list
+    return list*/
 }
 
 //  기준 시각 이후 바로 다음 발생일 (알림 재예약)

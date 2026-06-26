@@ -3,12 +3,11 @@ package app.solution.dailyup.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import app.solution.dailyup.utility.LocalDataManager
+import app.solution.dailyup.data.scheduleRepository
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
 import app.solution.dailyup.utility.nextOccurrenceAfter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -22,19 +21,11 @@ class BootReceiver : BroadcastReceiver() {
                 val pending = goAsync()
                 CoroutineScope(Dispatchers.Default).launch {
                     try {
-                        val today = LocalDate.now()
-
-                        LocalDataManager.getSchedules().forEach { schedule ->
-                            val next = schedule.nextOccurrenceAfter(today.minusDays(1)) ?: return@forEach
-                            ScheduleAlarmScheduler.add(context, schedule, next)
-                        }
-
                         reStartAllSchedules(context)
                     } finally {
                         pending.finish()
                     }
                 }
-
             }
         }
     }
@@ -43,7 +34,7 @@ class BootReceiver : BroadcastReceiver() {
     private suspend fun reStartAllSchedules(context: Context) {
         val today = LocalDate.now()
 
-        LocalDataManager.getSchedules().forEach { schedule ->
+        context.scheduleRepository.getSchedules().forEach { schedule ->
             val next = schedule.nextOccurrenceAfter(today.minusDays(1)) ?: return@forEach
 
             ScheduleAlarmScheduler.add(context, schedule, next)

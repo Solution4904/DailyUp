@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.R
 import app.solution.dailyup.adapter.ChartPagerAdapter
+import app.solution.dailyup.data.scheduleRepository
 import app.solution.dailyup.databinding.ActivityChartBinding
 import app.solution.dailyup.model.ChartPageItem
 import app.solution.dailyup.model.ScheduleAchievedBox
@@ -52,8 +53,8 @@ class ChartActivity : AppCompatActivity() {
     //  # Functions
     //  ViewPager 세팅
     private suspend fun setupPager() {
-        val schedules = LocalDataManager.getSchedules()
-        val progressMap = LocalDataManager.getProgressMap()
+        val schedules = scheduleRepository.getSchedules()
+        val progressMap = scheduleRepository.getProgressMap()
 
         val items = listOf(
             //  전체 성취율

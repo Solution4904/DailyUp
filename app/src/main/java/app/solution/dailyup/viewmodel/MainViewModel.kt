@@ -22,8 +22,8 @@ class MainViewModel : ViewModel() {
     )
     val navigationEvents = _navigationEvents.asSharedFlow()
 
-    private val _scheduleModel = MutableLiveData<ScheduleModel>()
-    val scheduleModel: LiveData<ScheduleModel> = _scheduleModel
+    /*private val _scheduleModel = MutableLiveData<ScheduleModel>()
+    val scheduleModel: LiveData<ScheduleModel> = _scheduleModel*/
 
     private val _currentDate = MutableLiveData<LocalDate>(LocalDate.now())
     val currentDate: LiveData<LocalDate> = _currentDate

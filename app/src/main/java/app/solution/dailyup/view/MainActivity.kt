@@ -29,7 +29,6 @@ import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.navigation.AppNavigator
 import app.solution.dailyup.utility.ConstKeys
-import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
 import app.solution.dailyup.utility.ScheduleTypeEnum
