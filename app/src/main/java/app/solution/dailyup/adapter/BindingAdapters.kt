@@ -37,15 +37,5 @@ object BindingAdapters {
             .with(view.context)
             .load(iconResId)
             .into(view)
-
-        /*val iconResId = if (scheduleModel.isCompleted || scheduleModel.progressMaxValue == scheduleModel.progressValue) {
-            R.drawable.ic_check
-        } else {
-            scheduleModel.iconResId
-        }
-
-        Glide.with(view.context)
-            .load(iconResId)
-            .into(view)*/
     }
 }

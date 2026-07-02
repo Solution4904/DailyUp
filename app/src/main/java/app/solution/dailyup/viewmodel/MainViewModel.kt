@@ -22,9 +22,6 @@ class MainViewModel : ViewModel() {
     )
     val navigationEvents = _navigationEvents.asSharedFlow()
 
-    /*private val _scheduleModel = MutableLiveData<ScheduleModel>()
-    val scheduleModel: LiveData<ScheduleModel> = _scheduleModel*/
-
     private val _currentDate = MutableLiveData<LocalDate>(LocalDate.now())
     val currentDate: LiveData<LocalDate> = _currentDate
 
@@ -34,29 +31,6 @@ class MainViewModel : ViewModel() {
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val uiEvent = _uiEvent.asSharedFlow()
-
-
-    /**
-     * Receive schedule data with intent
-     * 일정 추가 화면에서 데이터 받아오기
-     * @param intent
-     *//*
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun receiveScheduleDataWithIntent(intent: Intent) {
-        _scheduleModel.value = ScheduleModel(
-            id = intent.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
-            title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
-            date = intent.getStringExtra(ConstKeys.SCHEDULE_DATE).toString(),
-            dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
-            iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
-            type = ScheduleTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
-            processMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
-            processValueStep = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
-            processValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUE, 0)
-        )
-
-        TraceLog(message = "receiveScheduleDataWithIntent -> $scheduleModel")
-    }*/
 
     fun onScheduleCompleteClick(scheduleModel: ScheduleModel) {
         viewModelScope.launch {

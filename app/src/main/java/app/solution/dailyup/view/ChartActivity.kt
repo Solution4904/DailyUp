@@ -18,7 +18,6 @@ import app.solution.dailyup.model.ScheduleAchievedBox
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.model.ScheduleProgressModel
 import app.solution.dailyup.utility.CalendarUtil
-import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.TimePeriod
 import app.solution.dailyup.utility.occurrencesIn
 import com.google.android.material.tabs.TabLayoutMediator
@@ -39,7 +38,7 @@ class ChartActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -131,21 +130,5 @@ class ChartActivity : AppCompatActivity() {
         }
 
         return ScheduleAchievedBox(total = total, achieved = achieved, rate = rate)
-
-        /*val schedules = LocalDataManager.getSchedulesForPeriod(LocalDate.now(), timePeriod)
-        val achieved = schedules.count {
-            //  단발성 완료 일정 || 누적형 완료 일정
-            it.isCompleted || (it.progressMaxValue != null && it.progressValue == it.progressMaxValue)
-        }
-
-        //  일정이 존재하지 않으면 0, 존재한다면 백분율 계산
-        val rate = if (schedules.isEmpty()) 0
-        else (achieved * 100) / schedules.size
-
-        return ScheduleAchievedBox(
-            total = schedules.size,
-            achieved = achieved,
-            rate = rate,
-        )*/
     }
 }

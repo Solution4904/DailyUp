@@ -26,12 +26,6 @@ class ScheduleAdapter(
         }
     }
 
-    /*fun updateList(newScheduleList: List<ScheduleOccurrence>) {
-        occurrence.clear()
-        occurrence.addAll(newScheduleList)
-        notifyDataSetChanged()
-    }*/
-
     inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
             val item = getItem(position)
@@ -92,5 +86,4 @@ class ScheduleAdapter(
     }
 
     override fun getItemViewType(position: Int) = getItem(position).source.type.ordinal
-//    override fun getItemCount(): Int = occurrence.size
 }

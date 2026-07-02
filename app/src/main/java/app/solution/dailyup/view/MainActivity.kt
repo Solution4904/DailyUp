@@ -139,20 +139,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * 데이터 변경 관찰
      */
     private fun observeViewModel() {
-        /*viewModel.currentCalendar.observe(this) { date ->
-            calendarAdapter.updateDates(date)
-
-            scheduleViewModel.loadSchedules(date.toString())
-        }*/
-
         viewModel.currentDate.observe(this) { date ->
             calendarAdapter.updateDates(date)
             scheduleViewModel.loadSchedules(date.toString())
         }
-
-        /*viewModel.scheduleModel.observe(this) { scheduleModel ->
-            scheduleViewModel.upsertSchedule(scheduleModel)
-        }*/
     }
 
     /**
@@ -179,49 +169,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             },
             onIconClickForNormalType = { occurrence ->
                 scheduleViewModel.completeProgress(occurrence)
-
-                /*val updated = occurrence.progress.copy(isComplete = true)
-
-                //  todo:???
-                lifecycleScope.launch {
-                    LocalDataManager.upsertProgress(updated)
-                }
-
-                scheduleViewModel.loadSchedules(occurrence.date.toString())*/
             },
             onIconClickForCountingType = { occurrence ->
                 scheduleViewModel.incrementProgress(occurrence)
-
-                /*val max = occurrence.source.progressMaxValue
-                val current = occurrence.progress.progressValue
-
-                if (max != null && current < max) {
-                    val step = occurrence.source.progressStepValue ?: 1
-                    //  todo : ???
-                    val next = (current + step).coerceAtMost(max)
-                    LocalDataManager.upsertProgress(occurrence.progress.copy(progressValue = next))
-                    scheduleViewModel.loadSchedules(occurrence.date.toString())
-                }*/
             },
-            /*onIconClickForNormalType = { position ->
-                scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-                    viewModel.onScheduleCompleteClick(scheduleModels[position].copy(isCompleted = true))
-                }
-            },*/
-            /*onIconClickForCountingType = { position ->
-                scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-                    val targetScheduleModel = scheduleModels[position]
-
-                    if (targetScheduleModel.progressMaxValue!! <= targetScheduleModel.progressValue!!) return@let
-
-                    val calculatedValue = targetScheduleModel.progressValue.plus(targetScheduleModel.progressStepValue!!)
-                    val value =
-                        if (calculatedValue > targetScheduleModel.progressMaxValue) targetScheduleModel.progressMaxValue
-                        else calculatedValue
-
-                    viewModel.onScheduleIncreaseProcessClick(scheduleModels[position].copy(progressValue = value))
-                }
-            },*/
             onItemLongClick = { occurrence ->
                 viewModel.onScheduleDeleteDialog(occurrence.source)
             },
@@ -230,10 +181,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         scheduleViewModel.occurrences.observe(this) { list ->
             scheduleAdapter.submitList(list)
-//            scheduleAdapter.updateList(list)
 
             binding.layoutEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-//            binding.layoutRecyclerview.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
 
             TraceLog(message = "scheduleViewModel observe -> $list")
         }
@@ -242,17 +191,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     private fun popupScheduleItemDialog(scheduleModel: ScheduleModel) {
-        scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-            AlertDialog.Builder(this@MainActivity).apply {
-                setTitle("제거 확인")
-                setMessage("선택하신 스케줄을 제거하시겠습니까?")
-                setPositiveButton("제거") { _, _ ->
-                    scheduleViewModel.deleteSchedule(scheduleModel)
-                    ScheduleAlarmScheduler.cancel(this@MainActivity, scheduleModel)
-                }
-                setNegativeButton("취소") { _, _ -> }
-            }.show()
-        }
+        AlertDialog.Builder(this@MainActivity).apply {
+            setTitle("제거 확인")
+            setMessage("선택하신 스케줄을 제거하시겠습니까?")
+            setPositiveButton("제거") { _, _ ->
+                scheduleViewModel.deleteSchedule(scheduleModel)
+                ScheduleAlarmScheduler.cancel(this@MainActivity, scheduleModel)
+            }
+            setNegativeButton("취소") { _, _ -> }
+        }.show()
     }
 
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")

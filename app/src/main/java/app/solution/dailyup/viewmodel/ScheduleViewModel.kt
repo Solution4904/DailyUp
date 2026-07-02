@@ -50,10 +50,6 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
 
             TraceLog(message = "ScheduleViewModel 생성")
         }
-
-        /*scheduleDatas = LocalDataManager.getSchedules().toMutableList()
-
-        TraceLog(message = "ScheduleViewModel 생성")*/
     }
 
     override fun onCleared() {
@@ -83,41 +79,6 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
                 val progress = progressCache[key] ?: ScheduleProgressModel(schedule.id, date)
                 ScheduleOccurrence(schedule, target, progress)
             }
-
-        /*val target = runCatching {
-            LocalDate.parse(date)
-        }.getOrNull()
-
-        if (target == null) {
-            _occurrences.value = emptyList()
-
-            return
-        }
-
-        val progressMap = LocalDataManager.getProgressMap()
-
-        _occurrences.value = scheduleDatas
-            .filter { it.occursOn(target) }
-            .map { schedule ->
-                val key = "${schedule.id}@$date"
-                val progress = progressMap[key] ?: ScheduleProgressModel(schedule.id, date)
-                ScheduleOccurrence(schedule, target, progress)
-            }*/
-
-
-        /*_scheduleModels.value = if (date.isEmpty()) {
-            scheduleDatas
-        } else {
-            scheduleDatas.filter { it.date == date }
-        }*/
-
-        /*val lodedData = LocalDataManager.getSchedules()
-
-        if (date == "") {
-            _scheduleModels.value = lodedData
-        } else {
-            _scheduleModels.value = lodedData.filter { it.date == date }
-        }*/
 
         TraceLog(message = "Schedule 로드 -> \nrequest date : $date\nsize : ${_scheduleModels.value?.size}\n${_scheduleModels.value}")
     }
@@ -170,63 +131,16 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         }
         saveSchedules()
 
-//        val currentDate = _scheduleModels.value?.firstOrNull { it.date.isNotEmpty() }?.date ?: ""
         loadSchedules(scheduleModel.date)
-
-        /*val resultScheduleModel = _scheduleModels.value?.find { it.id == scheduleModel.id }
-
-        if (resultScheduleModel != null) {
-            editSchedule(scheduleModel)
-        } else {
-            addSchedule(scheduleModel)
-        }*/
     }
-
-    /*private fun editSchedule(scheduleModel: ScheduleModel) {
-        _scheduleModels.value = _scheduleModels.value?.map { model ->
-            if (model.id == scheduleModel.id) {
-                scheduleModel
-            } else {
-                model
-            }
-        }
-
-        if (_scheduleModels.value == null) return
-        LocalDataManager.saveSchedules(_scheduleModels.value!!)
-
-        TraceLog(message = "Schedule 수정 -> $scheduleModel")
-    }
-
-    private fun addSchedule(scheduleModel: ScheduleModel) {
-        _scheduleModels.value?.let { datas ->
-
-            val newDatas = datas + scheduleModel
-            _scheduleModels.value = newDatas
-
-            LocalDataManager.saveSchedules(newDatas)
-
-//            TraceLog(message = "현재 데이터 -> $datas\n전달받은 데이터-> $scheduleModel\n새로 저장할 데이터 -> $newDatas")
-//            TraceLog(message = "Schedule 추가 -> ${_scheduleModels.value}")
-            TraceLog(message = "Schedule 추가 -> $scheduleModel")
-        }
-    }*/
 
     fun deleteSchedule(scheduleModel: ScheduleModel) {
         scheduleDatas.removeAll { it.id == scheduleModel.id }
 
         saveSchedules()
 
-        /*_scheduleModels.value = _scheduleModels.value?.filter { it.id != scheduleModel.id }
-        LocalDataManager.saveSchedules(_scheduleModels.value!!)*/
-
         TraceLog(message = "Schedule 삭제 -> $scheduleModel")
     }
-
-    /*fun saveSchedules() {
-        LocalDataManager.saveSchedules(scheduleDatas)
-
-        TraceLog(message = "scheduleDatas 저장")
-    }*/
 
     fun saveSchedules() {
         viewModelScope.launch {

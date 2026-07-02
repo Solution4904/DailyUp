@@ -1,6 +1,5 @@
 package app.solution.dailyup.adapter
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -23,7 +22,7 @@ class CalendarAdapter(
     init {
         weekDate = LocalDate.now()
 
-        selectedPosition = (weekDate.dayOfWeek.value % 7)
+        selectedPosition = weekDates.indexOf(weekDate)
         selectedDate = weekDates[selectedPosition]
     }
 
@@ -71,16 +70,6 @@ class CalendarAdapter(
     }
 
     override fun getItemCount() = weekDates.size
-
-//    @SuppressLint("NotifyDataSetChanged")
-//    fun updateDates(newWeek: Int) {
-//        weekDate = weekDate.plusWeeks(newWeek.toLong())
-//        weekDates = CalendarUtil().getWeeklyDates(weekDate)
-//
-//        onUpdateDateEvent(weekDate)
-//
-//        notifyDataSetChanged()
-//    }
 
     fun updateDates(date: LocalDate) {
         weekDate = date

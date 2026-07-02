@@ -78,16 +78,6 @@ fun ScheduleModel.occurrencesIn(range: ClosedRange<LocalDate>): List<LocalDate> 
     }
 
     return list
-
-
-    /*val list = mutableListOf<LocalDate>()
-    var tempDate = range.start
-    while (!tempDate.isAfter(range.endInclusive)) {
-        if (occursOn(tempDate)) list.add(tempDate)
-        tempDate = tempDate.plusDays(1)
-    }
-
-    return list*/
 }
 
 //  기준 시각 이후 바로 다음 발생일 (알림 재예약)
