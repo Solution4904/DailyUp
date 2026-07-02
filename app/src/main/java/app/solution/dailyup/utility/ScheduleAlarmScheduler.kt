@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.receiver.ScheduleAlarmReceiver
 import java.time.LocalDate
@@ -48,9 +47,6 @@ object ScheduleAlarmScheduler {
     private fun buildPendingIntent(context: Context, model: ScheduleModel): PendingIntent {
         val intent = Intent(context, ScheduleAlarmReceiver::class.java).apply {
             putExtra(ConstKeys.SCHEDULE_ID, model.id)
-            putExtra(ConstKeys.SCHEDULE_TITLE, model.title)
-            putExtra(ConstKeys.SCHEDULE_DEC, model.dec)
-            putExtra(ConstKeys.SCHEDULE_ICONNAME, model.iconResId ?: R.drawable.ic_schedule_default)
         }
 
         return PendingIntent.getBroadcast(
@@ -74,13 +70,5 @@ object ScheduleAlarmScheduler {
                 .toInstant()
                 .toEpochMilli()
         }.getOrNull()
-
-        /*return runCatching {
-            val date = LocalDate.parse(model.date)
-            LocalDateTime.of(date, LocalTime.of(model.hour, model.minute))
-                .atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli()
-        }.getOrNull()*/
     }
 }

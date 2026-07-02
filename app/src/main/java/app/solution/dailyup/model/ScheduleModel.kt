@@ -1,10 +1,13 @@
 package app.solution.dailyup.model
 
+import android.os.Parcelable
 import app.solution.dailyup.R
 import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleTypeEnum
+import kotlinx.parcelize.Parcelize
 import java.util.UUID
 
+@Parcelize
 data class ScheduleModel(
     val type: ScheduleTypeEnum = ScheduleTypeEnum.NORMAL,
     val repeat: RepeatTypeEnum = RepeatTypeEnum.ONCE,
@@ -19,4 +22,4 @@ data class ScheduleModel(
     val progressStepValue: Int? = 1,
     val hour: Int = 0,
     val minute: Int = 0,
-)
+) : Parcelable

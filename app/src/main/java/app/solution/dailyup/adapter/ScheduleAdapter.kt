@@ -1,35 +1,34 @@
 package app.solution.dailyup.adapter
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.databinding.adapters.ViewBindingAdapter.setOnLongClickListener
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import app.solution.dailyup.BR.occurrence
 import app.solution.dailyup.databinding.ScheduleViewCountingBinding
 import app.solution.dailyup.databinding.ScheduleViewNormalBinding
-import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.model.ScheduleOccurrence
 import app.solution.dailyup.utility.ScheduleTypeEnum
 
 class ScheduleAdapter(
-    private val occurrence: MutableList<ScheduleOccurrence>,
     private val onIconClickForNormalType: (ScheduleOccurrence) -> Unit,
     private val onIconClickForCountingType: (ScheduleOccurrence) -> Unit,
     private val onItemClick: (ScheduleOccurrence) -> Unit,
     private val onItemLongClick: (ScheduleOccurrence) -> Unit,
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : ListAdapter<ScheduleOccurrence, RecyclerView.ViewHolder>(DiffCallback) {
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<ScheduleOccurrence>() {
+            override fun areItemsTheSame(old: ScheduleOccurrence, new: ScheduleOccurrence) =
+                old.source.id == new.source.id && old.date == new.date
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateList(newScheduleList: List<ScheduleOccurrence>) {
-        occurrence.clear()
-        occurrence.addAll(newScheduleList)
-        notifyDataSetChanged()
+            override fun areContentsTheSame(old: ScheduleOccurrence, new: ScheduleOccurrence) =
+                old == new
+        }
     }
 
     inner class ScheduleNormalViewHolder(private val binding: ScheduleViewNormalBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
-            val item = occurrence[position]
+            val item = getItem(position)
 
             binding.occurrence = item
 
@@ -50,7 +49,7 @@ class ScheduleAdapter(
 
     inner class ScheduleCountingViewHolder(private val binding: ScheduleViewCountingBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
-            val item = occurrence[position]
+            val item = getItem(position)
 
             binding.occurrence = item
 
@@ -86,6 +85,5 @@ class ScheduleAdapter(
         }
     }
 
-    override fun getItemViewType(position: Int) = occurrence[position].source.type.ordinal
-    override fun getItemCount(): Int = occurrence.size
+    override fun getItemViewType(position: Int) = getItem(position).source.type.ordinal
 }

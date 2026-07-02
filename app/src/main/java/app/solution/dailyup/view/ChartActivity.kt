@@ -8,18 +8,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.R
 import app.solution.dailyup.adapter.ChartPagerAdapter
+import app.solution.dailyup.data.scheduleRepository
 import app.solution.dailyup.databinding.ActivityChartBinding
 import app.solution.dailyup.model.ChartPageItem
 import app.solution.dailyup.model.ScheduleAchievedBox
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.model.ScheduleProgressModel
 import app.solution.dailyup.utility.CalendarUtil
-import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.TimePeriod
 import app.solution.dailyup.utility.occurrencesIn
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class ChartActivity : AppCompatActivity() {
@@ -36,42 +38,47 @@ class ChartActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        setupPager()
+        lifecycleScope.launch {
+            setupPager()
+        }
     }
 
     //  # Functions
     //  ViewPager 세팅
-    private fun setupPager() {
+    private suspend fun setupPager() {
+        val schedules = scheduleRepository.getSchedules()
+        val progressMap = scheduleRepository.getProgressMap()
+
         val items = listOf(
             //  전체 성취율
             ChartPageItem(
                 label = getString(R.string.chart_total_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_total),
-                box = calculateAchievement(TimePeriod.TOTAL)
+                box = calculateAchievement(TimePeriod.TOTAL, schedules, progressMap)
             ),
             //  월간 성취율
             ChartPageItem(
                 label = getString(R.string.chart_monthly_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_monthly),
-                box = calculateAchievement(TimePeriod.MONTH)
+                box = calculateAchievement(TimePeriod.MONTH, schedules, progressMap)
             ),
             //  주간 성취율
             ChartPageItem(
                 label = getString(R.string.chart_weekly_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_weekly),
-                box = calculateAchievement(TimePeriod.WEEK)
+                box = calculateAchievement(TimePeriod.WEEK, schedules, progressMap)
             ),
             //  일간 성취율
             ChartPageItem(
                 label = getString(R.string.chart_daily_label),
                 indicatorColor = ContextCompat.getColor(this, R.color.chart_daily),
-                box = calculateAchievement(TimePeriod.DAY)
+                box = calculateAchievement(TimePeriod.DAY, schedules, progressMap)
             ),
         )
 
@@ -83,10 +90,8 @@ class ChartActivity : AppCompatActivity() {
     }
 
     //  일정 성취율 계산
-    private fun calculateAchievement(timePeriod: TimePeriod): ScheduleAchievedBox {
+    private fun calculateAchievement(timePeriod: TimePeriod, schedules: List<ScheduleModel>, progressMap: Map<String, ScheduleProgressModel>): ScheduleAchievedBox {
         val today = LocalDate.now()
-        val schedules = LocalDataManager.getSchedules()
-        val progressMap = LocalDataManager.getProgressMap()
 
         val range: ClosedRange<LocalDate> = when (timePeriod) {
             TimePeriod.TOTAL -> {
@@ -125,21 +130,5 @@ class ChartActivity : AppCompatActivity() {
         }
 
         return ScheduleAchievedBox(total = total, achieved = achieved, rate = rate)
-
-        /*val schedules = LocalDataManager.getSchedulesForPeriod(LocalDate.now(), timePeriod)
-        val achieved = schedules.count {
-            //  단발성 완료 일정 || 누적형 완료 일정
-            it.isCompleted || (it.progressMaxValue != null && it.progressValue == it.progressMaxValue)
-        }
-
-        //  일정이 존재하지 않으면 0, 존재한다면 백분율 계산
-        val rate = if (schedules.isEmpty()) 0
-        else (achieved * 100) / schedules.size
-
-        return ScheduleAchievedBox(
-            total = schedules.size,
-            achieved = achieved,
-            rate = rate,
-        )*/
     }
 }

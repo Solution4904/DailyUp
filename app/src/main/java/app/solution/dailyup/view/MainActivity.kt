@@ -29,7 +29,6 @@ import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.navigation.AppNavigator
 import app.solution.dailyup.utility.ConstKeys
-import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
 import app.solution.dailyup.utility.ScheduleTypeEnum
@@ -99,7 +98,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             if (isGranted) return@registerForActivityResult
 
             //  권한 거부
-            showNotificationPermissionDenindDialog()
+            showNotificationPermissionDeniedDialog()
         }
 
 
@@ -140,20 +139,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * 데이터 변경 관찰
      */
     private fun observeViewModel() {
-        /*viewModel.currentCalendar.observe(this) { date ->
-            calendarAdapter.updateDates(date)
-
-            scheduleViewModel.loadSchedules(date.toString())
-        }*/
-
         viewModel.currentDate.observe(this) { date ->
             calendarAdapter.updateDates(date)
             scheduleViewModel.loadSchedules(date.toString())
         }
-
-        /*viewModel.scheduleModel.observe(this) { scheduleModel ->
-            scheduleViewModel.upsertSchedule(scheduleModel)
-        }*/
     }
 
     /**
@@ -171,53 +160,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     //    Function
-    @SuppressLint("NotifyDataSetChanged")
     private fun setScheduleRecyclerViewAdapter() {
         binding.layoutRecyclerview.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         scheduleAdapter = ScheduleAdapter(
-            occurrence = mutableListOf(),
             onItemClick = { occurrence ->
                 viewModel.onEditScheduleClick(occurrence.source)
             },
             onIconClickForNormalType = { occurrence ->
-                val updated = occurrence.progress.copy(isComplete = true)
-
-                LocalDataManager.upsertProgress(updated)
-
-                scheduleViewModel.loadSchedules(occurrence.date.toString())
+                scheduleViewModel.completeProgress(occurrence)
             },
             onIconClickForCountingType = { occurrence ->
-                val max = occurrence.source.progressMaxValue
-                val current = occurrence.progress.progressValue
-
-                if (max != null && current < max) {
-                    val step = occurrence.source.progressStepValue ?: 1
-                    //  todo : ???
-                    val next = (current + step).coerceAtMost(max)
-                    LocalDataManager.upsertProgress(occurrence.progress.copy(progressValue = next))
-                    scheduleViewModel.loadSchedules(occurrence.date.toString())
-                }
+                scheduleViewModel.incrementProgress(occurrence)
             },
-            /*onIconClickForNormalType = { position ->
-                scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-                    viewModel.onScheduleCompleteClick(scheduleModels[position].copy(isCompleted = true))
-                }
-            },*/
-            /*onIconClickForCountingType = { position ->
-                scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-                    val targetScheduleModel = scheduleModels[position]
-
-                    if (targetScheduleModel.progressMaxValue!! <= targetScheduleModel.progressValue!!) return@let
-
-                    val calculatedValue = targetScheduleModel.progressValue.plus(targetScheduleModel.progressStepValue!!)
-                    val value =
-                        if (calculatedValue > targetScheduleModel.progressMaxValue) targetScheduleModel.progressMaxValue
-                        else calculatedValue
-
-                    viewModel.onScheduleIncreaseProcessClick(scheduleModels[position].copy(progressValue = value))
-                }
-            },*/
             onItemLongClick = { occurrence ->
                 viewModel.onScheduleDeleteDialog(occurrence.source)
             },
@@ -225,10 +180,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.layoutRecyclerview.adapter = scheduleAdapter
 
         scheduleViewModel.occurrences.observe(this) { list ->
-            scheduleAdapter.updateList(list)
+            scheduleAdapter.submitList(list)
 
             binding.layoutEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-//            binding.layoutRecyclerview.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
 
             TraceLog(message = "scheduleViewModel observe -> $list")
         }
@@ -237,17 +191,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     private fun popupScheduleItemDialog(scheduleModel: ScheduleModel) {
-        scheduleViewModel.scheduleModels.value?.let { scheduleModels ->
-            AlertDialog.Builder(this@MainActivity).apply {
-                setTitle("제거 확인")
-                setMessage("선택하신 스케줄을 제거하시겠습니까?")
-                setPositiveButton("제거") { _, _ ->
-                    scheduleViewModel.deleteSchedule(scheduleModel)
-                    ScheduleAlarmScheduler.cancel(this@MainActivity, scheduleModel)
-                }
-                setNegativeButton("취소") { _, _ -> }
-            }.show()
-        }
+        AlertDialog.Builder(this@MainActivity).apply {
+            setTitle("제거 확인")
+            setMessage("선택하신 스케줄을 제거하시겠습니까?")
+            setPositiveButton("제거") { _, _ ->
+                scheduleViewModel.deleteSchedule(scheduleModel)
+                ScheduleAlarmScheduler.cancel(this@MainActivity, scheduleModel)
+            }
+            setNegativeButton("취소") { _, _ -> }
+        }.show()
     }
 
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
@@ -271,7 +223,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     //  알림 권한 요청
-    private fun showNotificationPermissionDenindDialog() {
+    private fun showNotificationPermissionDeniedDialog() {
         AlertDialog.Builder(this)
             .setTitle("알림 권한이 차단되어 있습니다.")
             .setMessage("일정 알림을 위해 '설정'에서 알림 권한을 허용해주세요.")

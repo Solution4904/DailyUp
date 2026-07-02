@@ -1,21 +1,27 @@
 package app.solution.dailyup.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.solution.dailyup.MyApplication
 import app.solution.dailyup.R
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.model.ScheduleOccurrence
 import app.solution.dailyup.model.ScheduleProgressModel
-import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.utility.occursOn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Collections.emptyList
 
-class ScheduleViewModel : ViewModel() {
+//  todo:???
+class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
     // # Variable
+    private val repo = (app as MyApplication).scheduleRepository
+
     val type = MutableLiveData<ScheduleTypeEnum>(ScheduleTypeEnum.NORMAL)
     val date = MutableLiveData<String>("")
     val id = MutableLiveData<String>("")
@@ -30,15 +36,20 @@ class ScheduleViewModel : ViewModel() {
     val scheduleModels: LiveData<List<ScheduleModel>> = _scheduleModels
 
     private var scheduleDatas: MutableList<ScheduleModel> = mutableListOf()
+    private var progressCache: Map<String, ScheduleProgressModel> = emptyMap()
 
     private val _occurrences = MutableLiveData<List<ScheduleOccurrence>>(emptyList())
     val occurrences: LiveData<List<ScheduleOccurrence>> = _occurrences
 
+
     // # LifeCycle
     init {
-        scheduleDatas = LocalDataManager.getSchedules().toMutableList()
+        viewModelScope.launch {
+            scheduleDatas = repo.getSchedules().toMutableList()
+            progressCache = repo.getProgressMap()
 
-        TraceLog(message = "ScheduleViewModel 생성")
+            TraceLog(message = "ScheduleViewModel 생성")
+        }
     }
 
     override fun onCleared() {
@@ -59,31 +70,44 @@ class ScheduleViewModel : ViewModel() {
             return
         }
 
-        val progressMap = LocalDataManager.getProgressMap()
-
         _occurrences.value = scheduleDatas
-            .filter { it.occursOn(target) }
+            .filter {
+                it.occursOn(target)
+            }
             .map { schedule ->
                 val key = "${schedule.id}@$date"
-                val progress = progressMap[key] ?: ScheduleProgressModel(schedule.id, date)
+                val progress = progressCache[key] ?: ScheduleProgressModel(schedule.id, date)
                 ScheduleOccurrence(schedule, target, progress)
             }
 
-        /*_scheduleModels.value = if (date.isEmpty()) {
-            scheduleDatas
-        } else {
-            scheduleDatas.filter { it.date == date }
-        }*/
-
-        /*val lodedData = LocalDataManager.getSchedules()
-
-        if (date == "") {
-            _scheduleModels.value = lodedData
-        } else {
-            _scheduleModels.value = lodedData.filter { it.date == date }
-        }*/
-
         TraceLog(message = "Schedule 로드 -> \nrequest date : $date\nsize : ${_scheduleModels.value?.size}\n${_scheduleModels.value}")
+    }
+
+    fun completeProgress(occurrence: ScheduleOccurrence) {
+        viewModelScope.launch {
+            val updated = occurrence.progress.copy(isComplete = true)
+
+            //  todo:???
+            repo.upsertProgress(updated)
+            progressCache = progressCache + (updated.key to updated)
+            loadSchedules(occurrence.date.toString())
+        }
+    }
+
+    fun incrementProgress(occurrence: ScheduleOccurrence) {
+        val max = occurrence.source.progressMaxValue ?: return
+        if (occurrence.progress.progressValue >= max) return
+        val step = occurrence.source.progressStepValue ?: 1
+        //  todo:???
+        val next = (occurrence.progress.progressValue + step).coerceAtMost(max)
+
+        viewModelScope.launch {
+            val updated = occurrence.progress.copy(progressValue = next)
+            repo.upsertProgress(updated)
+            //  todo:???
+            progressCache = progressCache + (updated.key to updated)
+            loadSchedules(occurrence.date.toString())
+        }
     }
 
     fun findScheduleById(id: String): ScheduleModel? {
@@ -107,61 +131,22 @@ class ScheduleViewModel : ViewModel() {
         }
         saveSchedules()
 
-//        val currentDate = _scheduleModels.value?.firstOrNull { it.date.isNotEmpty() }?.date ?: ""
         loadSchedules(scheduleModel.date)
-
-        /*val resultScheduleModel = _scheduleModels.value?.find { it.id == scheduleModel.id }
-
-        if (resultScheduleModel != null) {
-            editSchedule(scheduleModel)
-        } else {
-            addSchedule(scheduleModel)
-        }*/
     }
-
-    /*private fun editSchedule(scheduleModel: ScheduleModel) {
-        _scheduleModels.value = _scheduleModels.value?.map { model ->
-            if (model.id == scheduleModel.id) {
-                scheduleModel
-            } else {
-                model
-            }
-        }
-
-        if (_scheduleModels.value == null) return
-        LocalDataManager.saveSchedules(_scheduleModels.value!!)
-
-        TraceLog(message = "Schedule 수정 -> $scheduleModel")
-    }
-
-    private fun addSchedule(scheduleModel: ScheduleModel) {
-        _scheduleModels.value?.let { datas ->
-
-            val newDatas = datas + scheduleModel
-            _scheduleModels.value = newDatas
-
-            LocalDataManager.saveSchedules(newDatas)
-
-//            TraceLog(message = "현재 데이터 -> $datas\n전달받은 데이터-> $scheduleModel\n새로 저장할 데이터 -> $newDatas")
-//            TraceLog(message = "Schedule 추가 -> ${_scheduleModels.value}")
-            TraceLog(message = "Schedule 추가 -> $scheduleModel")
-        }
-    }*/
 
     fun deleteSchedule(scheduleModel: ScheduleModel) {
         scheduleDatas.removeAll { it.id == scheduleModel.id }
 
         saveSchedules()
 
-        /*_scheduleModels.value = _scheduleModels.value?.filter { it.id != scheduleModel.id }
-        LocalDataManager.saveSchedules(_scheduleModels.value!!)*/
-
         TraceLog(message = "Schedule 삭제 -> $scheduleModel")
     }
 
     fun saveSchedules() {
-        LocalDataManager.saveSchedules(scheduleDatas)
+        viewModelScope.launch {
+            repo.saveSchedules(scheduleDatas)
 
-        TraceLog(message = "scheduleDatas 저장")
+            TraceLog(message = "scheduleDatas 저장")
+        }
     }
 }

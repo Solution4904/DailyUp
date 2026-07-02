@@ -16,31 +16,40 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.graphics.drawable.toBitmap
 import app.solution.dailyup.R
+import app.solution.dailyup.data.scheduleRepository
 import app.solution.dailyup.utility.ConstKeys
-import app.solution.dailyup.utility.LocalDataManager
 import app.solution.dailyup.utility.NotificationHelper
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
 import app.solution.dailyup.utility.nextOccurrenceAfter
 import app.solution.dailyup.view.MainActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class ScheduleAlarmReceiver : BroadcastReceiver() {
     @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: return
-        val title = intent.getStringExtra(ConstKeys.SCHEDULE_TITLE).orEmpty()
-        val dec = intent.getStringExtra(ConstKeys.SCHEDULE_DEC).orEmpty()
-        val iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default)
+        val pending = goAsync()
 
-        val contentPendingIntent = buildContentPendingIntent(context, id)
-        val notification = buildNotification(context, title, dec, iconResId, contentPendingIntent)
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                val model = context.scheduleRepository.getSchedules()
+                    .firstOrNull { it.id == id } ?: return@launch
+                val iconResId = model.iconResId ?: R.drawable.ic_schedule_default
+                val contentPendingIntent = buildContentPendingIntent(context, id)
+                val notification = buildNotification(context, model.title, model.dec, iconResId, contentPendingIntent)
 
-        if (!hasNotificationPermission(context)) return
-        NotificationManagerCompat.from(context).notify(id.hashCode(), notification)
+                if (!hasNotificationPermission(context)) return@launch
+                NotificationManagerCompat.from(context).notify(id.hashCode(), notification)
 
-        val model = LocalDataManager.getSchedules().firstOrNull() { it.id == id } ?: return
-        val next = model.nextOccurrenceAfter(LocalDate.now()) ?: return
-        ScheduleAlarmScheduler.add(context, model, target = next)
+                val next = model.nextOccurrenceAfter(LocalDate.now()) ?: return@launch
+                ScheduleAlarmScheduler.add(context, model, next)
+            } finally {
+                pending.finish()
+            }
+        }
     }
 
     private fun buildContentPendingIntent(context: Context, id: String): PendingIntent {

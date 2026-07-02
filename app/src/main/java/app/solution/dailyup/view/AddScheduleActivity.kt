@@ -27,36 +27,13 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.activity_addschedule) {
     //    Variable
     private val viewModel: AddScheduleViewModel by viewModels()
-//    private val scheduleViewModel: ScheduleViewModel by viewModels()
-    //    private lateinit var selectIconResultLauncher: ActivityResultLauncher<Intent>
 
     //    LifeCycle
-    /*@RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_addschedule)
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-
-        enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        initData()
-
-        setButtonsEvent()
-    }*/
-
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun init() {
         binding.viewModel = viewModel
 
@@ -71,26 +48,11 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
      * Check intent data
      * 일정 편집으로 들어왔는지 확인 후 ViewModel에 데이터 세팅 호출.
      */
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun initIntentData() {
-        val scheduleModel = ScheduleModel(
-            id = (intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: UUID.randomUUID()).toString(),
-            date = (intent.getStringExtra(ConstKeys.SCHEDULE_DATE) ?: LocalDate.now()).toString(),
-            title = (intent.getStringExtra(ConstKeys.SCHEDULE_TITLE) ?: "").toString(),
-            dec = (intent.getStringExtra(ConstKeys.SCHEDULE_DEC) ?: "").toString(),
-            iconResId = intent.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, R.drawable.ic_schedule_default),
-            type = ScheduleTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
-            repeat = RepeatTypeEnum.convertToType(intent.getStringExtra(ConstKeys.SCHEDULE_REPEAT).toString()),
-            progressMaxValue = intent.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, 1),
-            progressStepValue = intent.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, 1),
-            hour = intent.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
-            minute = intent.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
-        )
+        val scheduleModel = intent.getParcelableExtra(ConstKeys.SCHEDULE_MODEL, ScheduleModel::class.java) ?: return
 
         viewModel.setData(scheduleModel)
-
-//        binding.npHour.value = scheduleModel.hour
-//        binding.npMinute.value = scheduleModel.minute
     }
 
     private fun supportTwoWayBinding() {
@@ -167,26 +129,10 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         }
     }
 
-    //    @RequiresApi(Build.VERSION_CODES.O)
     @RequiresApi(Build.VERSION_CODES.O)
     private fun scheduleSave(scheduleModel: ScheduleModel) {
-//        scheduleViewModel.upsertSchedule(scheduleModel)
-//        finish()
-
         val resultIntent = Intent().apply {
-            with(scheduleModel) {
-                putExtra(ConstKeys.SCHEDULE_ID, id)
-                putExtra(ConstKeys.SCHEDULE_DATE, date)
-                putExtra(ConstKeys.SCHEDULE_TITLE, title)
-                putExtra(ConstKeys.SCHEDULE_DEC, dec)
-                putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
-                putExtra(ConstKeys.SCHEDULE_TYPE, type.name)
-                putExtra(ConstKeys.SCHEDULE_REPEAT, repeat.name)
-                putExtra(ConstKeys.SCHEDULE_MAXVALUE, progressMaxValue)
-                putExtra(ConstKeys.SCHEDULE_VALUESTEP, progressStepValue)
-                putExtra(ConstKeys.SCHEDULE_HOUR, hour)
-                putExtra(ConstKeys.SCHEDULE_MINUTE, minute)
-            }
+            putExtra(ConstKeys.SCHEDULE_MODEL, scheduleModel)
         }
 
         TraceLog(message = "scheduleSave -> $scheduleModel")
@@ -196,50 +142,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
     }
 
     private fun scheduleCancel() = finish()
-
-    /*private fun initData() {
-        with(intent)
-        {
-            if (hasExtra(ConstKeys.SCHEDULE_ID)) {
-                viewModel.type.value = ScheduleTypeEnum.convert(getStringExtra(ConstKeys.SCHEDULE_TYPE).toString())
-                viewModel.id.value = getStringExtra(ConstKeys.SCHEDULE_ID).toString()
-                viewModel.title.value = getStringExtra(ConstKeys.SCHEDULE_TITLE).toString()
-                viewModel.dec.value = getStringExtra(ConstKeys.SCHEDULE_DEC).toString()
-                viewModel.date.value = getStringExtra(ConstKeys.SCHEDULE_DATE).toString()
-                viewModel.iconResId.value = getIntExtra(ConstKeys.SCHEDULE_ICONNAME, viewModel.iconResId.value ?: R.drawable.ic_schedule_default)
-                viewModel.processMaxValue.value = getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, viewModel.processMaxValue.value ?: 1)
-                viewModel.processValueStep.value = getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, viewModel.processValueStep.value ?: 1)
-                viewModel.processValue.value = getIntExtra(ConstKeys.SCHEDULE_VALUE, viewModel.processValue.value ?: 0)
-
-            }
-        }
-
-        TraceLog(message = "initData -> ${viewModel.scheduleModels.value}")
-    }*/
-
-    /*@RequiresApi(Build.VERSION_CODES.O)
-    private fun setButtonsEvent() {
-        binding.apply {
-            etDate.setOnClickListener {
-                popupDatePicker()
-            }
-            ibtnIcon.setOnClickListener {
-                popupIconList()
-            }
-
-            btnType.setOnClickListener {
-                popupTypeList()
-            }
-
-            btnConfirm.setOnClickListener {
-                save()
-            }
-
-            btnCancel.setOnClickListener {
-                cancel()
-            }
-        }
-    }*/
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun popupDatePicker() {
@@ -261,8 +163,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             val formattedDate = sdf.format(selectedDate)
 
             viewModel.setDate(formattedDate)
-
-//            `binding`.etDate.setText(viewModel.date.value)
         }
     }
 
@@ -285,44 +185,4 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
 
         fragment.show(supportFragmentManager, fragment.tag)
     }
-
-    /*@RequiresApi(Build.VERSION_CODES.O)
-    private fun save() {
-        val id = viewModel.id.value?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
-        val date = viewModel.date.value ?: LocalDate.now().toString()
-        val title = binding.etTitle.text.toString()
-        val dec = binding.etDec.text.toString()
-        val iconResId = viewModel.iconResId.value ?: R.drawable.ic_schedule_default
-        val type = viewModel.type.value ?: ScheduleTypeEnum.NORMAL
-        val processMaxValue = binding.etCountingMax.text.toString().toIntOrNull() ?: 1
-        val processValueStep = binding.etCountingValueStep.text.toString().toIntOrNull() ?: 1
-        val processValue = viewModel.processValue.value ?: 0
-
-        val resultIntent = Intent().apply {
-            with(viewModel) {
-                putExtra(ConstKeys.SCHEDULE_ID, id)
-                putExtra(ConstKeys.SCHEDULE_DATE, date)
-                putExtra(ConstKeys.SCHEDULE_TITLE, title)
-                putExtra(ConstKeys.SCHEDULE_DEC, dec)
-                putExtra(ConstKeys.SCHEDULE_ICONNAME, iconResId)
-                putExtra(ConstKeys.SCHEDULE_TYPE, type.toString())
-                putExtra(ConstKeys.SCHEDULE_MAXVALUE, processMaxValue)
-                putExtra(ConstKeys.SCHEDULE_VALUESTEP, processValueStep)
-                putExtra(ConstKeys.SCHEDULE_VALUE, processValue)
-            }
-        }
-        setResult(RESULT_OK, resultIntent)
-
-        val logText = StringBuilder()
-        val bundle = resultIntent.extras
-        if (bundle != null) {
-            for (key in bundle.keySet()) {
-                val value = bundle[key]
-                logText.append("\n$key : $value")
-            }
-        }
-        TraceLog(message = "save -> $logText")
-
-        finish()
-    }*/
 }
