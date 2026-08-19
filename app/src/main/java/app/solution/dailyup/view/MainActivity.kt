@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.IntentCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -29,16 +30,14 @@ import app.solution.dailyup.event.MainUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.navigation.AppNavigator
 import app.solution.dailyup.utility.ConstKeys
-import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleAlarmScheduler
-import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.MainViewModel
 import app.solution.dailyup.viewmodel.ScheduleViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalTime
+
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     //    Variable
@@ -67,27 +66,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                result.data?.let {
-                    val resultData = ScheduleModel(
-                        type = ScheduleTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_TYPE).toString()),
-                        id = it.getStringExtra(ConstKeys.SCHEDULE_ID).toString(),
-                        title = it.getStringExtra(ConstKeys.SCHEDULE_TITLE).toString(),
-                        dec = it.getStringExtra(ConstKeys.SCHEDULE_DEC).toString(),
-                        date = it.getStringExtra(ConstKeys.SCHEDULE_DATE).toString(),
-                        iconResId = it.getIntExtra(ConstKeys.SCHEDULE_ICONNAME, -1).takeIf { it != -1 },
-                        progressMaxValue = it.getIntExtra(ConstKeys.SCHEDULE_MAXVALUE, -1).takeIf { it != -1 },
-                        progressStepValue = it.getIntExtra(ConstKeys.SCHEDULE_VALUESTEP, -1).takeIf { it != -1 },
-                        hour = it.getIntExtra(ConstKeys.SCHEDULE_HOUR, LocalTime.now().hour),
-                        minute = it.getIntExtra(ConstKeys.SCHEDULE_MINUTE, LocalTime.now().minute),
-                        repeat = RepeatTypeEnum.convertToType(it.getStringExtra(ConstKeys.SCHEDULE_REPEAT).toString()),
+                val resultData = result.data?.let {
+                    IntentCompat.getParcelableExtra(
+                        it,
+                        ConstKeys.SCHEDULE_MODEL,
+                        ScheduleModel::class.java
                     )
+                } ?: return@registerForActivityResult
 
-                    scheduleViewModel.upsertSchedule(resultData)
-                    ScheduleAlarmScheduler.add(this, resultData)
+                scheduleViewModel.upsertSchedule(resultData)
+                ScheduleAlarmScheduler.add(this, resultData)
 
-                    viewModel.onDateSelected(LocalDate.parse(resultData.date))
-                    TraceLog(message = "registerForActivityResult -> $resultData")
-                }
+                viewModel.onDateSelected(LocalDate.parse(resultData.date))
+                TraceLog(message = "registerForActivityResult -> $resultData")
             }
         }
 

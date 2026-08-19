@@ -1,15 +1,13 @@
 package app.solution.dailyup.view
 
 import android.content.Intent
-import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
+import androidx.core.content.IntentCompat
 import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.BaseActivity
 import app.solution.dailyup.R
-import app.solution.dailyup.view.ScheduleIconSelectorBottomSheet
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
@@ -33,7 +31,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
     private val viewModel: AddScheduleViewModel by viewModels()
 
     //    LifeCycle
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun init() {
         binding.viewModel = viewModel
 
@@ -48,9 +45,12 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
      * Check intent data
      * 일정 편집으로 들어왔는지 확인 후 ViewModel에 데이터 세팅 호출.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun initIntentData() {
-        val scheduleModel = intent.getParcelableExtra(ConstKeys.SCHEDULE_MODEL, ScheduleModel::class.java) ?: return
+        val scheduleModel = IntentCompat.getParcelableExtra(
+            intent,
+            ConstKeys.SCHEDULE_MODEL,
+            ScheduleModel::class.java
+        ) ?: return
 
         viewModel.setData(scheduleModel)
     }
@@ -114,7 +114,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
      * Observe event
      * 이벤트 관찰
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeEvent() {
         lifecycleScope.launch {
             viewModel.uiEvent.collect { event ->
@@ -129,7 +128,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun scheduleSave(scheduleModel: ScheduleModel) {
         val resultIntent = Intent().apply {
             putExtra(ConstKeys.SCHEDULE_MODEL, scheduleModel)
@@ -143,7 +141,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
 
     private fun scheduleCancel() = finish()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun popupDatePicker() {
         val selectedDay = if (!viewModel.date.value.isNullOrEmpty()) {
             LocalDate.parse(viewModel.date.value).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
