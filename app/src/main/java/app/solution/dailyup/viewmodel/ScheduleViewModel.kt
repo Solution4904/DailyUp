@@ -27,7 +27,7 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
     val id = MutableLiveData<String>("")
     val title = MutableLiveData<String>("")
     val dec = MutableLiveData<String>("")
-    val iconResId = MutableLiveData<Int>(R.drawable.ic_schedule_default)
+    val iconResId = MutableLiveData<Int>(R.drawable.icon_schedule_default)
     val processMaxValue = MutableLiveData<Int>(1)
     val processValueStep = MutableLiveData<Int>(1)
     val processValue = MutableLiveData<Int>(0)

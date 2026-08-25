@@ -19,12 +19,10 @@ import app.solution.dailyup.viewmodel.AddScheduleViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
+import java.time.ZoneOffset
+
 
 class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.activity_addschedule) {
     //    Variable
@@ -50,9 +48,16 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             intent,
             ConstKeys.SCHEDULE_MODEL,
             ScheduleModel::class.java
-        ) ?: return
+        )
 
-        viewModel.setData(scheduleModel)
+        if (scheduleModel != null) {
+            viewModel.setData(scheduleModel)
+            return
+        }
+
+        intent.getStringExtra(ConstKeys.SCHEDULE_DATE)?.let {
+            viewModel.setDate(it)
+        }
     }
 
     private fun supportTwoWayBinding() {
@@ -61,8 +66,8 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         binding.npMinute.minValue = 0
         binding.npMinute.maxValue = 59
 
-        binding.npHour.value = viewModel.hour.value ?: LocalTime.now().hour
-        binding.npMinute.value = viewModel.minute.value ?: LocalTime.now().minute
+        binding.npHour.value = viewModel.hour.value ?: 0
+        binding.npMinute.value = viewModel.minute.value ?: 0
 
         binding.etProgressMaxValue.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -142,11 +147,13 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
     private fun scheduleCancel() = finish()
 
     private fun popupDatePicker() {
-        val selectedDay = if (!viewModel.date.value.isNullOrEmpty()) {
-            LocalDate.parse(viewModel.date.value).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        } else {
-            MaterialDatePicker.todayInUtcMilliseconds()
-        }
+        val date = viewModel.date.value?.takeIf {
+            it.isNotEmpty()
+        }?.let {
+            LocalDate.parse(it)
+        } ?: LocalDate.now()
+
+        val selectedDay = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText("일정 날짜 선택")
@@ -155,9 +162,10 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         datePicker.show(supportFragmentManager, "datePicker")
 
         datePicker.addOnPositiveButtonClickListener { selection ->
-            val selectedDate = Date(selection)
-            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val formattedDate = sdf.format(selectedDate)
+            val formattedDate = Instant.ofEpochMilli(selection)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate()
+                .toString()
 
             viewModel.setDate(formattedDate)
         }
