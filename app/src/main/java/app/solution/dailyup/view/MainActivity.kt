@@ -177,8 +177,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
             TraceLog(message = "scheduleViewModel observe -> $list")
         }
-
-        scheduleViewModel.loadSchedules(LocalDate.now().toString())
     }
 
     private fun popupScheduleItemDialog(scheduleModel: ScheduleModel) {

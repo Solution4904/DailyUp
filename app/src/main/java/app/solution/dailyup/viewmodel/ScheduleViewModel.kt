@@ -37,6 +37,7 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
 
     private var scheduleDatas: MutableList<ScheduleModel> = mutableListOf()
     private var progressCache: Map<String, ScheduleProgressModel> = emptyMap()
+    private var lastRequestDate: String? = null
 
     private val _occurrences = MutableLiveData<List<ScheduleOccurrence>>(emptyList())
     val occurrences: LiveData<List<ScheduleOccurrence>> = _occurrences
@@ -47,6 +48,10 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             scheduleDatas = repo.getSchedules().toMutableList()
             progressCache = repo.getProgressMap()
+
+            lastRequestDate?.let {
+                loadSchedules(it)
+            }
 
             TraceLog(message = "ScheduleViewModel 생성")
         }
@@ -60,6 +65,8 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
 
     // # Function
     fun loadSchedules(date: String) {
+        lastRequestDate = date
+
         val target = runCatching {
             LocalDate.parse(date)
         }.getOrNull()
@@ -138,6 +145,9 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         scheduleDatas.removeAll { it.id == scheduleModel.id }
 
         saveSchedules()
+        lastRequestDate?.let {
+            loadSchedules(it)
+        }
 
         TraceLog(message = "Schedule 삭제 -> $scheduleModel")
     }

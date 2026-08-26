@@ -53,7 +53,7 @@ class CalendarAdapter(
                     selectedPosition = adapterPosition
                     notifyItemChanged(previousPosition)
                     notifyItemChanged(selectedPosition)
-                    onDateClickEvent(weekDates[position])
+                    onDateClickEvent(selectedDate)
                 }
             }
         }
@@ -75,7 +75,8 @@ class CalendarAdapter(
         weekDate = date
         weekDates = CalendarUtil().getWeeklyDates(date)
 
-        selectedDate = weekDates[selectedPosition]
+        selectedDate = date
+        selectedPosition = weekDates.indexOf(date).coerceAtLeast(0)
 
         onUpdateDateEvent(weekDate)
         notifyDataSetChanged()
