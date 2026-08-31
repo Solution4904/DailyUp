@@ -115,11 +115,39 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/layout_time"
+                    android:id="@+id/layout_notif"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="8dp"
                     android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:text="알람"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_alarm"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:checked="@={viewModel.isAlarmEnabled}"
+                        android:gravity="center"
+                        tools:checked="true" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:orientation="horizontal"
+                    android:visibility="@{viewModel.isAlarmEnabled ? View.VISIBLE :View.GONE}">
 
                     <TextView
                         android:layout_width="0dp"

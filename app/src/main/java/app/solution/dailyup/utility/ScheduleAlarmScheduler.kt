@@ -15,6 +15,12 @@ import java.time.ZoneId
 object ScheduleAlarmScheduler {
     // 알람 등록
     fun add(context: Context, model: ScheduleModel, target: LocalDate? = null) {
+        //  알람을 사용하지 않을 일정의 경우
+        if(!model.isAlarmEnabled){
+            cancel(context, model)
+            return
+        }
+
         val triggerMillis = computeTriggerMillis(model, target) ?: return
         //  등록하려는 시간이 현재 시간보다 과거일 경우 return
         if (triggerMillis <= System.currentTimeMillis()) return

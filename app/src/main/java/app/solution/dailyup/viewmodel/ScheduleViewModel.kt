@@ -13,6 +13,8 @@ import app.solution.dailyup.model.ScheduleProgressModel
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.utility.occursOn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Collections.emptyList
@@ -42,6 +44,9 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
     private val _occurrences = MutableLiveData<List<ScheduleOccurrence>>(emptyList())
     val occurrences: LiveData<List<ScheduleOccurrence>> = _occurrences
 
+    private val _isLoaded = MutableStateFlow(false)
+    val isLoaded: StateFlow<Boolean> = _isLoaded
+
 
     // # LifeCycle
     init {
@@ -52,6 +57,8 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
             lastRequestDate?.let {
                 loadSchedules(it)
             }
+
+            _isLoaded.value = true
 
             TraceLog(message = "ScheduleViewModel 생성")
         }

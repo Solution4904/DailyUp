@@ -3,6 +3,7 @@ package app.solution.dailyup.view
 import android.content.Intent
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +17,8 @@ import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.AddScheduleViewModel
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -153,21 +156,36 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
             LocalDate.parse(it)
         } ?: LocalDate.now()
 
+        val today = LocalDate.now()
+            .atStartOfDay(ZoneOffset.UTC)
+            .toInstant()
+            .toEpochMilli()
+
+        val constraints = CalendarConstraints.Builder()
+            .setStart(today)
+            .setValidator(DateValidatorPointForward.from(today))
+            .build()
+
         val selectedDay = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText("일정 날짜 선택")
             .setSelection(selectedDay)
+            .setCalendarConstraints(constraints)
             .build()
         datePicker.show(supportFragmentManager, "datePicker")
 
         datePicker.addOnPositiveButtonClickListener { selection ->
-            val formattedDate = Instant.ofEpochMilli(selection)
+            val selectedDate = Instant.ofEpochMilli(selection)
                 .atZone(ZoneOffset.UTC)
                 .toLocalDate()
-                .toString()
 
-            viewModel.setDate(formattedDate)
+            if (selectedDate.isBefore(LocalDate.now())) {
+                Toast.makeText(baseContext, "오늘보다 이전의 일정은 등록할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                return@addOnPositiveButtonClickListener
+            }
+
+            viewModel.setDate(selectedDate.toString())
         }
     }
 

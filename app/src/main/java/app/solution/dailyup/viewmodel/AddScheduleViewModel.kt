@@ -37,6 +37,7 @@ class AddScheduleViewModel : ViewModel() {
     val repeat = MutableLiveData<RepeatTypeEnum>(RepeatTypeEnum.ONCE)
     val hour = MutableLiveData<Int>(LocalTime.now().hour)
     val minute = MutableLiveData<Int>(LocalTime.now().minute)
+    val isAlarmEnabled = MutableLiveData<Boolean>(true)
 
     private val _progressMaxValue = MutableLiveData<Int?>(1)
     val progressMaxValue: LiveData<Int?> = _progressMaxValue
@@ -56,6 +57,7 @@ class AddScheduleViewModel : ViewModel() {
         repeat.value = param.repeat
         hour.value = param.hour
         minute.value = param.minute
+        isAlarmEnabled.value = param.isAlarmEnabled
         _progressMaxValue.value = param.progressMaxValue
         _progressStepValue.value = param.progressStepValue
     }
@@ -111,6 +113,7 @@ class AddScheduleViewModel : ViewModel() {
             progressStepValue = progressStepValue.value!!,
             hour = hour.value!!,
             minute = minute.value!!,
+            isAlarmEnabled = isAlarmEnabled.value!!
         )
         viewModelScope.launch {
             _uiEvent.emit(

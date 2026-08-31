@@ -22,4 +22,5 @@ data class ScheduleModel(
     val progressStepValue: Int? = 1,
     val hour: Int = 0,
     val minute: Int = 0,
+    val isAlarmEnabled: Boolean = true,
 ) : Parcelable

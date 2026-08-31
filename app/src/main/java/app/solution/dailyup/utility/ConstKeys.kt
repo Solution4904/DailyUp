@@ -7,6 +7,7 @@ object ConstKeys {
     const val SCHEDULE_LIST = "SCHEDULE_LIST"
     const val SCHEDULE_ID = "SCHEDULE_ID"
     const val SCHEDULE_DATE = "SCHEDULE_DATE"
+    const val SCHEDULE_NOTIF = "SCHEDULE_NOTIF"
 
     const val FROM_NOTIFICATION = "FROM_NOTIFICATION"
 

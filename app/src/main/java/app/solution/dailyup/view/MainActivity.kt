@@ -35,6 +35,7 @@ import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.MainViewModel
 import app.solution.dailyup.viewmodel.ScheduleViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -58,7 +59,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onNewIntent(intent)
 
         setIntent(intent)
-        handleNotificationIntent(intent)
+        handleNotificationIntentWhenReady(intent)
     }
 
     override fun init() {
@@ -102,11 +103,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         checkNotificationPermission()
 
-        lifecycleScope.launch {
-            lifecycle.withStarted {
-                handleNotificationIntent(intent)
-            }
-        }
+        handleNotificationIntentWhenReady(intent)
     }
 
     /**
@@ -239,19 +236,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
+    private fun handleNotificationIntentWhenReady(intent: Intent) {
+        lifecycleScope.launch {
+            scheduleViewModel.isLoaded.first { it }
+            lifecycle.withStarted {
+                handleNotificationIntent(intent)
+            }
+        }
+    }
+
     private fun handleNotificationIntent(intent: Intent) {
-        intent ?: return
         if (!intent.getBooleanExtra(ConstKeys.FROM_NOTIFICATION, false)) return
         val scheduleId = intent.getStringExtra(ConstKeys.SCHEDULE_ID) ?: return
-
-        intent.removeExtra(ConstKeys.FROM_NOTIFICATION)
-        intent.removeExtra(ConstKeys.SCHEDULE_ID)
 
         val target = scheduleViewModel.findScheduleById(scheduleId)
         if (target == null) {
             Toast.makeText(this, "해당 일정을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        intent.removeExtra(ConstKeys.FROM_NOTIFICATION)
+        intent.removeExtra(ConstKeys.SCHEDULE_ID)
 
         viewModel.onDateSelected(LocalDate.parse(target.date))
         viewModel.onEditScheduleClick(target)
