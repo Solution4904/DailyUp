@@ -37,7 +37,7 @@ class ScheduleAlarmReceiver : BroadcastReceiver() {
             try {
                 val model = context.scheduleRepository.getSchedules()
                     .firstOrNull { it.id == id } ?: return@launch
-                val iconResId = model.iconResId ?: R.drawable.ic_schedule_default
+                val iconResId = model.iconResId ?: R.drawable.icon_schedule_default
                 val contentPendingIntent = buildContentPendingIntent(context, id)
                 val notification = buildNotification(context, model.title, model.dec, iconResId, contentPendingIntent)
 

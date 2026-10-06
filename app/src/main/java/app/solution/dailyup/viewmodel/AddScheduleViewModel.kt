@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.solution.dailyup.R
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
 import app.solution.dailyup.utility.RepeatTypeEnum
@@ -12,6 +13,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.UUID
 
 class AddScheduleViewModel : ViewModel() {
@@ -26,14 +29,15 @@ class AddScheduleViewModel : ViewModel() {
     private val _id = MutableLiveData<String>(UUID.randomUUID().toString())
     val id: LiveData<String> = _id
 
-    val date = MutableLiveData<String>("")
+    val date = MutableLiveData<String>(LocalDate.now().toString())
     val title = MutableLiveData<String>("")
     val dec = MutableLiveData<String>("")
-    val iconResId = MutableLiveData<Int?>(0)
+    val iconResId = MutableLiveData<Int?>(R.drawable.icon_schedule_default)
     val type = MutableLiveData<ScheduleTypeEnum>(ScheduleTypeEnum.NORMAL)
     val repeat = MutableLiveData<RepeatTypeEnum>(RepeatTypeEnum.ONCE)
-    val hour = MutableLiveData<Int>(0)
-    val minute = MutableLiveData<Int>(0)
+    val hour = MutableLiveData<Int>(LocalTime.now().hour)
+    val minute = MutableLiveData<Int>(LocalTime.now().minute)
+    val isAlarmEnabled = MutableLiveData<Boolean>(true)
 
     private val _progressMaxValue = MutableLiveData<Int?>(1)
     val progressMaxValue: LiveData<Int?> = _progressMaxValue
@@ -53,6 +57,7 @@ class AddScheduleViewModel : ViewModel() {
         repeat.value = param.repeat
         hour.value = param.hour
         minute.value = param.minute
+        isAlarmEnabled.value = param.isAlarmEnabled
         _progressMaxValue.value = param.progressMaxValue
         _progressStepValue.value = param.progressStepValue
     }
@@ -108,6 +113,7 @@ class AddScheduleViewModel : ViewModel() {
             progressStepValue = progressStepValue.value!!,
             hour = hour.value!!,
             minute = minute.value!!,
+            isAlarmEnabled = isAlarmEnabled.value!!
         )
         viewModelScope.launch {
             _uiEvent.emit(

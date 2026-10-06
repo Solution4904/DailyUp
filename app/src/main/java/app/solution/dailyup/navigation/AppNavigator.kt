@@ -33,6 +33,12 @@ class AppNavigator {
                     }
                 }
 
+                event.selectedDate?.let {
+                    intent.apply {
+                        putExtra(ConstKeys.SCHEDULE_DATE, it.toString())
+                    }
+                }
+
                 activityLauncher?.launch(intent)
             }
         }

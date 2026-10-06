@@ -1,15 +1,14 @@
 package app.solution.dailyup.view
 
 import android.content.Intent
-import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
+import androidx.core.content.IntentCompat
 import androidx.lifecycle.lifecycleScope
 import app.solution.dailyup.BaseActivity
 import app.solution.dailyup.R
-import app.solution.dailyup.view.ScheduleIconSelectorBottomSheet
 import app.solution.dailyup.databinding.ActivityAddscheduleBinding
 import app.solution.dailyup.event.AddScheduleUiEvent
 import app.solution.dailyup.model.ScheduleModel
@@ -18,22 +17,21 @@ import app.solution.dailyup.utility.RepeatTypeEnum
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.viewmodel.AddScheduleViewModel
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
+import java.time.ZoneOffset
+
 
 class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.activity_addschedule) {
     //    Variable
     private val viewModel: AddScheduleViewModel by viewModels()
 
     //    LifeCycle
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun init() {
         binding.viewModel = viewModel
 
@@ -48,11 +46,21 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
      * Check intent data
      * 일정 편집으로 들어왔는지 확인 후 ViewModel에 데이터 세팅 호출.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun initIntentData() {
-        val scheduleModel = intent.getParcelableExtra(ConstKeys.SCHEDULE_MODEL, ScheduleModel::class.java) ?: return
+        val scheduleModel = IntentCompat.getParcelableExtra(
+            intent,
+            ConstKeys.SCHEDULE_MODEL,
+            ScheduleModel::class.java
+        )
 
-        viewModel.setData(scheduleModel)
+        if (scheduleModel != null) {
+            viewModel.setData(scheduleModel)
+            return
+        }
+
+        intent.getStringExtra(ConstKeys.SCHEDULE_DATE)?.let {
+            viewModel.setDate(it)
+        }
     }
 
     private fun supportTwoWayBinding() {
@@ -61,8 +69,8 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         binding.npMinute.minValue = 0
         binding.npMinute.maxValue = 59
 
-        binding.npHour.value = viewModel.hour.value ?: LocalTime.now().hour
-        binding.npMinute.value = viewModel.minute.value ?: LocalTime.now().minute
+        binding.npHour.value = viewModel.hour.value ?: 0
+        binding.npMinute.value = viewModel.minute.value ?: 0
 
         binding.etProgressMaxValue.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -114,7 +122,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
      * Observe event
      * 이벤트 관찰
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeEvent() {
         lifecycleScope.launch {
             viewModel.uiEvent.collect { event ->
@@ -129,7 +136,6 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun scheduleSave(scheduleModel: ScheduleModel) {
         val resultIntent = Intent().apply {
             putExtra(ConstKeys.SCHEDULE_MODEL, scheduleModel)
@@ -143,26 +149,43 @@ class AddScheduleActivity : BaseActivity<ActivityAddscheduleBinding>(R.layout.ac
 
     private fun scheduleCancel() = finish()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun popupDatePicker() {
-        val selectedDay = if (!viewModel.date.value.isNullOrEmpty()) {
-            LocalDate.parse(viewModel.date.value).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        } else {
-            MaterialDatePicker.todayInUtcMilliseconds()
-        }
+        val date = viewModel.date.value?.takeIf {
+            it.isNotEmpty()
+        }?.let {
+            LocalDate.parse(it)
+        } ?: LocalDate.now()
+
+        val today = LocalDate.now()
+            .atStartOfDay(ZoneOffset.UTC)
+            .toInstant()
+            .toEpochMilli()
+
+        val constraints = CalendarConstraints.Builder()
+            .setStart(today)
+            .setValidator(DateValidatorPointForward.from(today))
+            .build()
+
+        val selectedDay = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText("일정 날짜 선택")
             .setSelection(selectedDay)
+            .setCalendarConstraints(constraints)
             .build()
         datePicker.show(supportFragmentManager, "datePicker")
 
         datePicker.addOnPositiveButtonClickListener { selection ->
-            val selectedDate = Date(selection)
-            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val formattedDate = sdf.format(selectedDate)
+            val selectedDate = Instant.ofEpochMilli(selection)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate()
 
-            viewModel.setDate(formattedDate)
+            if (selectedDate.isBefore(LocalDate.now())) {
+                Toast.makeText(baseContext, "오늘보다 이전의 일정은 등록할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                return@addOnPositiveButtonClickListener
+            }
+
+            viewModel.setDate(selectedDate.toString())
         }
     }
 

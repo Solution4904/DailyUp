@@ -13,6 +13,8 @@ import app.solution.dailyup.model.ScheduleProgressModel
 import app.solution.dailyup.utility.ScheduleTypeEnum
 import app.solution.dailyup.utility.TraceLog
 import app.solution.dailyup.utility.occursOn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Collections.emptyList
@@ -27,7 +29,7 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
     val id = MutableLiveData<String>("")
     val title = MutableLiveData<String>("")
     val dec = MutableLiveData<String>("")
-    val iconResId = MutableLiveData<Int>(R.drawable.ic_schedule_default)
+    val iconResId = MutableLiveData<Int>(R.drawable.icon_schedule_default)
     val processMaxValue = MutableLiveData<Int>(1)
     val processValueStep = MutableLiveData<Int>(1)
     val processValue = MutableLiveData<Int>(0)
@@ -37,9 +39,13 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
 
     private var scheduleDatas: MutableList<ScheduleModel> = mutableListOf()
     private var progressCache: Map<String, ScheduleProgressModel> = emptyMap()
+    private var lastRequestDate: String? = null
 
     private val _occurrences = MutableLiveData<List<ScheduleOccurrence>>(emptyList())
     val occurrences: LiveData<List<ScheduleOccurrence>> = _occurrences
+
+    private val _isLoaded = MutableStateFlow(false)
+    val isLoaded: StateFlow<Boolean> = _isLoaded
 
 
     // # LifeCycle
@@ -47,6 +53,12 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             scheduleDatas = repo.getSchedules().toMutableList()
             progressCache = repo.getProgressMap()
+
+            lastRequestDate?.let {
+                loadSchedules(it)
+            }
+
+            _isLoaded.value = true
 
             TraceLog(message = "ScheduleViewModel 생성")
         }
@@ -60,6 +72,8 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
 
     // # Function
     fun loadSchedules(date: String) {
+        lastRequestDate = date
+
         val target = runCatching {
             LocalDate.parse(date)
         }.getOrNull()
@@ -138,6 +152,9 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         scheduleDatas.removeAll { it.id == scheduleModel.id }
 
         saveSchedules()
+        lastRequestDate?.let {
+            loadSchedules(it)
+        }
 
         TraceLog(message = "Schedule 삭제 -> $scheduleModel")
     }

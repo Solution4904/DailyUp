@@ -17,9 +17,10 @@ data class ScheduleModel(
     val exceptions: List<String> = emptyList(),    //  제외된 날짜 리스트
     val title: String = "",
     val dec: String = "",
-    val iconResId: Int? = R.drawable.ic_schedule_default,
+    val iconResId: Int? = R.drawable.icon_schedule_default,
     val progressMaxValue: Int? = 1,
     val progressStepValue: Int? = 1,
     val hour: Int = 0,
     val minute: Int = 0,
+    val isAlarmEnabled: Boolean = true,
 ) : Parcelable
